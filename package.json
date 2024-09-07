@@ -1,11 +1,10 @@
 {
-  "name": "revolt-api",
+  "name": "@upryzing/api",
   "version": "0.7.16",
-  "description": "Revolt API Library",
+  "description": "Upryzing API Library",
   "main": "dist/index.js",
   "module": "esm/index.js",
-  "homepage": "https://developers.revolt.chat",
-  "repository": "https://github.com/revoltchat/api.git",
+  "repository": "https://github.com/upryzing/api-types.git",
   "author": "Paul Makles <insrt.uk>",
   "license": "MIT",
   "scripts": {
