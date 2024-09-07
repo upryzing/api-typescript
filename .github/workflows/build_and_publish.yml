@@ -26,8 +26,8 @@ jobs:
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
-          author_name: Revolt CI
-          author_email: revolt-ci@users.noreply.github.com
+          author_name: Upryzing CI
+          author_email: upryzing-ci@users.noreply.github.com
           message: "chore: build library from latest spec [skip ci]"
 
       - name: Find current API version
@@ -46,8 +46,8 @@ jobs:
         if: ${{ steps.checkTag.outputs.exists }} != true
         uses: EndBug/add-and-commit@v9
         with:
-          author_name: Revolt CI
-          author_email: revolt-ci@users.noreply.github.com
+          author_name: Upryzing CI
+          author_email: upryzing-ci@users.noreply.github.com
           tag: "${{ env.api_version }} --force"
           message: "chore: bump version to ${{ env.api_version }} [skip ci]"
       - name: Publish to NPM
@@ -56,21 +56,21 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
 
-      - name: Checkout revolt.js repository
+      - name: Checkout upryzing.js repository
         if: ${{ steps.checkTag.outputs.exists }} != true
         uses: actions/checkout@v3
         with:
-          repository: revoltchat/revolt.js
-          path: revolt.js
+          repository: upryzing/upryzing.js
+          path: upryzing.js
           token: ${{ secrets.PAT }}
-      - name: Update revolt-api dependency
+      - name: Update @upryzing/api dependency
         if: ${{ steps.checkTag.outputs.exists }} != true
-        run: cd revolt.js && pnpm add revolt-api@${{ env.api_version }}
+        run: cd upryzing.js && pnpm add @upryzing/api@${{ env.api_version }}
       - name: Commit changes
         if: ${{ steps.checkTag.outputs.exists }} != true
         uses: EndBug/add-and-commit@v4
         with:
-          cwd: "revolt.js"
-          author_name: Revolt CI
-          author_email: revolt-ci@users.noreply.github.com
-          message: "chore: update revolt-api to ${{ env.api_version }}"
+          cwd: "upryzing.js"
+          author_name: Upryzing CI
+          author_email: upryzing-ci@users.noreply.github.com
+          message: "chore: update @upryzing/ci to ${{ env.api_version }}"
