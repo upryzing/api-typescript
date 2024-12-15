@@ -1,32 +1,28 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Revolt API",
+    "title": "Upryzing API",
     "description": "Open source user-first chat platform.",
     "termsOfService": "https://revolt.chat/terms",
     "contact": {
-      "name": "Revolt Support",
-      "url": "https://revolt.chat",
-      "email": "contact@revolt.chat"
+      "name": "Upryzing Support",
+      "url": "https://upryzing.app",
+      "email": ""
     },
     "license": {
       "name": "AGPLv3",
-      "url": "https://github.com/revoltchat/delta/blob/master/LICENSE"
+      "url": "https://github.com/upryzingchat/delta/blob/master/LICENSE"
     },
     "version": "0.7.16"
   },
   "servers": [
     {
-      "url": "https://api.revolt.chat",
-      "description": "Revolt Production"
+      "url": "https://web.upryzing.app/api",
+      "description": "Upryzing Production"
     },
     {
-      "url": "https://revolt.chat/api",
-      "description": "Revolt Staging"
-    },
-    {
-      "url": "http://local.revolt.chat:8000",
-      "description": "Local Revolt Environment"
+      "url": "http://local.upryzing.app:8000",
+      "description": "Local Upryzing Environment"
     }
   ],
   "paths": {
@@ -36,7 +32,7 @@
           "Core"
         ],
         "summary": "Query Node",
-        "description": "Fetch the server configuration for this Revolt instance.",
+        "description": "Fetch the server configuration for this Upryzing instance.",
         "operationId": "root_root",
         "responses": {
           "default": {
@@ -54,7 +50,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RevoltConfig"
+                  "$ref": "#/components/schemas/UpryzingConfig"
                 }
               }
             }
@@ -744,7 +740,7 @@
           "Bots"
         ],
         "summary": "Create Bot",
-        "description": "Create a new Revolt bot.",
+        "description": "Create a new Upryzing bot.",
         "operationId": "create_create_bot",
         "requestBody": {
           "content": {
@@ -4990,7 +4986,7 @@
           "Onboarding"
         ],
         "summary": "Complete Onboarding",
-        "description": "This sets a new username, completes onboarding and allows a user to start using Revolt.",
+        "description": "This sets a new username, completes onboarding and allows a user to start using Upryzing.",
         "operationId": "complete_complete",
         "requestBody": {
           "content": {
@@ -5264,27 +5260,27 @@
   },
   "components": {
     "schemas": {
-      "RevoltConfig": {
+      "UpryzingConfig": {
         "title": "Server Configuration",
         "type": "object",
         "required": [
           "app",
           "build",
           "features",
-          "revolt",
+          "upryzing",
           "vapid",
           "ws"
         ],
         "properties": {
-          "revolt": {
-            "description": "Revolt API Version",
+          "upryzing": {
+            "description": "Upryzing API Version",
             "type": "string"
           },
           "features": {
-            "description": "Features enabled on this Revolt node",
+            "description": "Features enabled on this Upryzing node",
             "allOf": [
               {
-                "$ref": "#/components/schemas/RevoltFeatures"
+                "$ref": "#/components/schemas/UpryzingFeatures"
               }
             ]
           },
@@ -5310,7 +5306,7 @@
           }
         }
       },
-      "RevoltFeatures": {
+      "UpryzingFeatures": {
         "title": "Feature Configuration",
         "type": "object",
         "required": [
@@ -6404,7 +6400,7 @@
             }
           },
           "badges": {
-            "description": "Bitfield of user badges\n\nhttps://docs.rs/revolt-models/latest/revolt_models/v0/enum.UserBadges.html",
+            "description": "Bitfield of user badges\n\nhttps://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.UserBadges.html",
             "type": "integer",
             "format": "uint32",
             "minimum": 0.0
@@ -6419,7 +6415,7 @@
             "nullable": true
           },
           "flags": {
-            "description": "Enum of user flags\n\nhttps://docs.rs/revolt-models/latest/revolt_models/v0/enum.UserFlags.html",
+            "description": "Enum of user flags\n\nhttps://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.UserFlags.html",
             "type": "integer",
             "format": "uint32",
             "minimum": 0.0
@@ -7741,7 +7737,7 @@
             "nullable": true
           },
           "flags": {
-            "description": "Bitfield of message flags\n\nhttps://docs.rs/revolt-models/latest/revolt_models/v0/enum.MessageFlags.html",
+            "description": "Bitfield of message flags\n\nhttps://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.MessageFlags.html",
             "type": "integer",
             "format": "uint32",
             "minimum": 0.0
@@ -8730,7 +8726,7 @@
             "nullable": true
           },
           "flags": {
-            "description": "Bitfield of message flags\n\nhttps://docs.rs/revolt-models/latest/revolt_models/v0/enum.MessageFlags.html",
+            "description": "Bitfield of message flags\n\nhttps://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.MessageFlags.html",
             "type": "integer",
             "format": "uint32",
             "minimum": 0.0,
@@ -11378,7 +11374,7 @@
   },
   "x-tagGroups": [
     {
-      "name": "Revolt",
+      "name": "Upryzing",
       "tags": [
         "Core"
       ]

@@ -5,7 +5,7 @@
 
 export interface paths {
   "/": {
-    /** Fetch the server configuration for this Revolt instance. */
+    /** Fetch the server configuration for this Upryzing instance. */
     get: operations["root_root"];
   };
   "/users/@me": {
@@ -71,7 +71,7 @@ export interface paths {
     post: operations["send_friend_request_send_friend_request"];
   };
   "/bots/create": {
-    /** Create a new Revolt bot. */
+    /** Create a new Upryzing bot. */
     post: operations["create_create_bot"];
   };
   "/bots/{target}/invite": {
@@ -403,7 +403,7 @@ export interface paths {
     get: operations["hello_hello"];
   };
   "/onboard/complete": {
-    /** This sets a new username, completes onboarding and allows a user to start using Revolt. */
+    /** This sets a new username, completes onboarding and allows a user to start using Upryzing. */
     post: operations["complete_complete"];
   };
   "/push/subscribe": {
@@ -439,11 +439,11 @@ export interface paths {
 export interface components {
   schemas: {
     /** Server Configuration */
-    RevoltConfig: {
-      /** @description Revolt API Version */
-      revolt: string;
-      /** @description Features enabled on this Revolt node */
-      features: components["schemas"]["RevoltFeatures"];
+    UpryzingConfig: {
+      /** @description Upryzing API Version */
+      upryzing: string;
+      /** @description Features enabled on this Upryzing node */
+      features: components["schemas"]["UpryzingFeatures"];
       /** @description WebSocket URL */
       ws: string;
       /** @description URL pointing to the client serving this node */
@@ -454,7 +454,7 @@ export interface components {
       build: components["schemas"]["BuildInformation"];
     };
     /** Feature Configuration */
-    RevoltFeatures: {
+    UpryzingFeatures: {
       /** @description hCaptcha configuration */
       captcha: components["schemas"]["CaptchaFeature"];
       /** @description Whether email verification is enabled */
@@ -786,7 +786,7 @@ export interface components {
        * Format: uint32
        * @description Bitfield of user badges
        *
-       * https://docs.rs/revolt-models/latest/revolt_models/v0/enum.UserBadges.html
+       * https://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.UserBadges.html
        */
       badges?: number;
       /** @description User's current status */
@@ -795,7 +795,7 @@ export interface components {
        * Format: uint32
        * @description Enum of user flags
        *
-       * https://docs.rs/revolt-models/latest/revolt_models/v0/enum.UserFlags.html
+       * https://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.UserFlags.html
        */
       flags?: number;
       /** @description Whether this user is privileged */
@@ -1300,7 +1300,7 @@ export interface components {
        * Format: uint32
        * @description Bitfield of message flags
        *
-       * https://docs.rs/revolt-models/latest/revolt_models/v0/enum.MessageFlags.html
+       * https://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.MessageFlags.html
        */
       flags?: number;
     };
@@ -1649,7 +1649,7 @@ export interface components {
        * Format: uint32
        * @description Bitfield of message flags
        *
-       * https://docs.rs/revolt-models/latest/revolt_models/v0/enum.MessageFlags.html
+       * https://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.MessageFlags.html
        */
       flags?: number | null;
     };
@@ -2595,12 +2595,12 @@ export interface components {
 }
 
 export interface operations {
-  /** Fetch the server configuration for this Revolt instance. */
+  /** Fetch the server configuration for this Upryzing instance. */
   root_root: {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["RevoltConfig"];
+          "application/json": components["schemas"]["UpryzingConfig"];
         };
       };
       /** An error occurred. */
@@ -2924,7 +2924,7 @@ export interface operations {
       };
     };
   };
-  /** Create a new Revolt bot. */
+  /** Create a new Upryzing bot. */
   create_create_bot: {
     responses: {
       200: {
@@ -4769,7 +4769,7 @@ export interface operations {
       };
     };
   };
-  /** This sets a new username, completes onboarding and allows a user to start using Revolt. */
+  /** This sets a new username, completes onboarding and allows a user to start using Upryzing. */
   complete_complete: {
     responses: {
       200: {
