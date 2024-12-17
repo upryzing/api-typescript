@@ -11,9 +11,9 @@
     },
     "license": {
       "name": "AGPLv3",
-      "url": "https://github.com/revoltchat/delta/blob/master/LICENSE"
+      "url": "https://github.com/upryzing/parrot/blob/main/LICENSE"
     },
-    "version": "0.7.16"
+    "version": "0.1.0"
   },
   "servers": [
     {
@@ -25,7 +25,7 @@
       "description": "Revolt Staging"
     },
     {
-      "url": "http://local.revolt.chat:8000",
+      "url": "http://local.revolt.chat:14702",
       "description": "Local Revolt Environment"
     }
   ],
@@ -744,7 +744,7 @@
           "Bots"
         ],
         "summary": "Create Bot",
-        "description": "Create a new Revolt bot.",
+        "description": "Create a new Upryzing bot.",
         "operationId": "create_create_bot",
         "requestBody": {
           "content": {
@@ -2500,8 +2500,8 @@
         "tags": [
           "Server Information"
         ],
-        "summary": "Create Server",
-        "description": "Create a new server.",
+        "summary": "Create Space",
+        "description": "Create a new space.",
         "operationId": "server_create_create_server",
         "requestBody": {
           "content": {
@@ -3829,7 +3829,7 @@
           "Emojis"
         ],
         "summary": "Create New Emoji",
-        "description": "Create an emoji by its Autumn upload id.",
+        "description": "Create an emoji by its Pigeon upload id.",
         "operationId": "emoji_create_create_emoji",
         "parameters": [
           {
@@ -5314,11 +5314,11 @@
         "title": "Feature Configuration",
         "type": "object",
         "required": [
-          "autumn",
           "captcha",
+          "dove",
           "email",
           "invite_only",
-          "january",
+          "pigeon",
           "voso"
         ],
         "properties": {
@@ -5338,7 +5338,7 @@
             "description": "Whether this server is invite only",
             "type": "boolean"
           },
-          "autumn": {
+          "pigeon": {
             "description": "File server service configuration",
             "allOf": [
               {
@@ -5346,7 +5346,7 @@
               }
             ]
           },
-          "january": {
+          "dove": {
             "description": "Proxy service configuration",
             "allOf": [
               {
@@ -6269,6 +6269,20 @@
               "type": {
                 "type": "string",
                 "enum": [
+                  "NotAuthenticated"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
                   "DuplicateNonce"
                 ]
               }
@@ -6343,6 +6357,82 @@
               "type": {
                 "type": "string",
                 "enum": [
+                  "FileTooSmall"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "max",
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "FileTooLarge"
+                ]
+              },
+              "max": {
+                "type": "integer",
+                "format": "uint",
+                "minimum": 0.0
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "FileTypeNotAllowed"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "ImageProcessingFailed"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "NoEmbedData"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
                   "VosoUnavailable"
                 ]
               }
@@ -6404,7 +6494,7 @@
             }
           },
           "badges": {
-            "description": "Bitfield of user badges\n\nhttps://docs.rs/revolt-models/latest/revolt_models/v0/enum.UserBadges.html",
+            "description": "Bitfield of user badges\n\nhttps://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.UserBadges.html",
             "type": "integer",
             "format": "uint32",
             "minimum": 0.0
@@ -6419,7 +6509,7 @@
             "nullable": true
           },
           "flags": {
-            "description": "Enum of user flags\n\nhttps://docs.rs/revolt-models/latest/revolt_models/v0/enum.UserFlags.html",
+            "description": "Enum of user flags\n\nhttps://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.UserFlags.html",
             "type": "integer",
             "format": "uint32",
             "minimum": 0.0
@@ -7493,7 +7583,7 @@
             "nullable": true
           },
           "icon": {
-            "description": "Icon\n\nProvide an Autumn attachment Id.",
+            "description": "Icon\n\nProvide an Pigeon attachment Id.",
             "type": "string",
             "maxLength": 128,
             "minLength": 1,
@@ -7741,7 +7831,7 @@
             "nullable": true
           },
           "flags": {
-            "description": "Bitfield of message flags\n\nhttps://docs.rs/revolt-models/latest/revolt_models/v0/enum.MessageFlags.html",
+            "description": "Bitfield of message flags\n\nhttps://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.MessageFlags.html",
             "type": "integer",
             "format": "uint32",
             "minimum": 0.0
@@ -8211,12 +8301,14 @@
               "width": {
                 "description": "Width of the image",
                 "type": "integer",
-                "format": "int"
+                "format": "uint",
+                "minimum": 0.0
               },
               "height": {
                 "description": "Height of the image",
                 "type": "integer",
-                "format": "int"
+                "format": "uint",
+                "minimum": 0.0
               },
               "size": {
                 "description": "Positioning and size",
@@ -8251,12 +8343,14 @@
               "width": {
                 "description": "Width of the video",
                 "type": "integer",
-                "format": "int"
+                "format": "uint",
+                "minimum": 0.0
               },
               "height": {
                 "description": "Height of the video",
                 "type": "integer",
-                "format": "int"
+                "format": "uint",
+                "minimum": 0.0
               }
             }
           },
@@ -8294,7 +8388,7 @@
                 "nullable": true
               },
               "media": {
-                "description": "ID of uploaded autumn file",
+                "description": "ID of uploaded pigeon file",
                 "allOf": [
                   {
                     "$ref": "#/components/schemas/File"
@@ -8572,12 +8666,14 @@
           "width": {
             "description": "Width of the image",
             "type": "integer",
-            "format": "int"
+            "format": "uint",
+            "minimum": 0.0
           },
           "height": {
             "description": "Height of the image",
             "type": "integer",
-            "format": "int"
+            "format": "uint",
+            "minimum": 0.0
           },
           "size": {
             "description": "Positioning and size",
@@ -8613,12 +8709,14 @@
           "width": {
             "description": "Width of the video",
             "type": "integer",
-            "format": "int"
+            "format": "uint",
+            "minimum": 0.0
           },
           "height": {
             "description": "Height of the video",
             "type": "integer",
-            "format": "int"
+            "format": "uint",
+            "minimum": 0.0
           }
         }
       },
@@ -8730,7 +8828,7 @@
             "nullable": true
           },
           "flags": {
-            "description": "Bitfield of message flags\n\nhttps://docs.rs/revolt-models/latest/revolt_models/v0/enum.MessageFlags.html",
+            "description": "Bitfield of message flags\n\nhttps://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.MessageFlags.html",
             "type": "integer",
             "format": "uint32",
             "minimum": 0.0,
@@ -9080,6 +9178,7 @@
         "type": "object",
         "required": [
           "channel_id",
+          "creator_id",
           "id",
           "name",
           "permissions"
@@ -9101,6 +9200,10 @@
               }
             ],
             "nullable": true
+          },
+          "creator_id": {
+            "description": "User that created this webhook",
+            "type": "string"
           },
           "channel_id": {
             "description": "The channel this webhook belongs to",
