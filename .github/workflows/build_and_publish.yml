@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # set up Node/Yarn and build the package
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Use Node.js 18
@@ -19,9 +20,6 @@ jobs:
         with:
           node-version: 18.x
           cache: "yarn"
-      # - uses: pnpm/action-setup@v4
-      #   with:
-      #     version: 7
       - name: Install packages
         run: yarn install
       - name: Build package
@@ -33,6 +31,7 @@ jobs:
           author_email: upryzing-ci@users.noreply.github.com
           message: "chore: build library from latest spec [skip ci]"
 
+      # publish the package if needed
       - name: Find current API version
         run: echo "api_version=$(jq -r .info.version OpenAPI.json)" >> $GITHUB_ENV
       - name: Check if tag exists for current version
@@ -59,6 +58,7 @@ jobs:
         with:
           token: ${{ secrets.NPM_TOKEN }}
 
+      # update upryzing.js's repo
       - name: Checkout upryzing.js repository
         if: ${{ steps.checkTag.outputs.exists }} != true
         uses: actions/checkout@v3
