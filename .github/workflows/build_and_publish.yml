@@ -66,13 +66,13 @@ jobs:
         with:
           repository: upryzing/upryzing.js
           path: upryzing.js
-          token: ${{ secrets.PAT }}
+          #token: ${{ secrets.PAT }}
       - name: Update @upryzing/api dependency
         if: ${{ steps.checkTag.outputs.exists }} != true
         run: cd upryzing.js && corepack enable && pnpm add @upryzing/api@${{ env.api_version }}
       - name: Commit changes
         if: ${{ steps.checkTag.outputs.exists }} != true
-        uses: EndBug/add-and-commit@v4
+        uses: EndBug/add-and-commit@v9
         with:
           cwd: "upryzing.js"
           author_name: Upryzing CI
