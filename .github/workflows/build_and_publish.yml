@@ -54,8 +54,9 @@ jobs:
           message: "chore: bump version to ${{ env.api_version }} [skip ci]"
       - name: Publish to NPM
         if: ${{ steps.checkTag.outputs.exists }} != true
-        uses: JS-DevTools/npm-publish@v1
+        uses: JS-DevTools/npm-publish@v3
         with:
+          access: public
           token: ${{ secrets.NPM_TOKEN }}
 
       # update upryzing.js's repo
