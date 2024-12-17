@@ -16,9 +16,9 @@ jobs:
         with:
           node-version: 18.x
           cache: "yarn"
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 7
+      # - uses: pnpm/action-setup@v4
+      #   with:
+      #     version: 7
       - name: Install packages
         run: yarn install
       - name: Build package
@@ -65,7 +65,7 @@ jobs:
           token: ${{ secrets.PAT }}
       - name: Update @upryzing/api dependency
         if: ${{ steps.checkTag.outputs.exists }} != true
-        run: cd upryzing.js && pnpm add @upryzing/api@${{ env.api_version }}
+        run: cd upryzing.js && corepack enable && pnpm add @upryzing/api@${{ env.api_version }}
       - name: Commit changes
         if: ${{ steps.checkTag.outputs.exists }} != true
         uses: EndBug/add-and-commit@v4
