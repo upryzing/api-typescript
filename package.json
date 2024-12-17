@@ -1,6 +1,6 @@
 {
   "name": "@upryzing/api",
-  "version": "0.7.16",
+  "version": "0.1.0",
   "description": "Upryzing API Library",
   "main": "dist/index.js",
   "module": "esm/index.js",
@@ -29,5 +29,6 @@
     "OpenAPI.json",
     "LICENSE",
     "README.md"
-  ]
+  ],
+  "packageManager": "yarn@1.22.19"
 }
