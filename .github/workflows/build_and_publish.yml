@@ -73,4 +73,4 @@ jobs:
           cwd: "upryzing.js"
           author_name: Upryzing CI
           author_email: upryzing-ci@users.noreply.github.com
-          message: "chore: update @upryzing/ci to ${{ env.api_version }}"
+          message: "chore: update @upryzing/api to ${{ env.api_version }}"
