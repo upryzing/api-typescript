@@ -71,7 +71,7 @@ export interface paths {
     post: operations["send_friend_request_send_friend_request"];
   };
   "/bots/create": {
-    /** Create a new Revolt bot. */
+    /** Create a new Upryzing bot. */
     post: operations["create_create_bot"];
   };
   "/bots/{target}/invite": {
@@ -215,7 +215,7 @@ export interface paths {
     get: operations["webhook_fetch_all_fetch_webhooks"];
   };
   "/servers/create": {
-    /** Create a new server. */
+    /** Create a new space. */
     post: operations["server_create_create_server"];
   };
   "/servers/{target}": {
@@ -299,7 +299,7 @@ export interface paths {
     delete: operations["invite_delete_delete"];
   };
   "/custom/emoji/{id}": {
-    /** Create an emoji by its Autumn upload id. */
+    /** Create an emoji by its Pigeon upload id. */
     put: operations["emoji_create_create_emoji"];
   };
   "/custom/emoji/{emoji_id}": {
@@ -462,9 +462,9 @@ export interface components {
       /** @description Whether this server is invite only */
       invite_only: boolean;
       /** @description File server service configuration */
-      autumn: components["schemas"]["Feature"];
+      pigeon: components["schemas"]["Feature"];
       /** @description Proxy service configuration */
-      january: components["schemas"]["Feature"];
+      dove: components["schemas"]["Feature"];
       /** @description Voice server configuration */
       voso: components["schemas"]["VoiceFeature"];
     };
@@ -741,6 +741,10 @@ export interface components {
         }
       | {
           /** @enum {string} */
+          type: "NotAuthenticated";
+        }
+      | {
+          /** @enum {string} */
           type: "DuplicateNonce";
         }
       | {
@@ -759,6 +763,28 @@ export interface components {
       | {
           /** @enum {string} */
           type: "ProxyError";
+        }
+      | {
+          /** @enum {string} */
+          type: "FileTooSmall";
+        }
+      | {
+          /** @enum {string} */
+          type: "FileTooLarge";
+          /** Format: uint */
+          max: number;
+        }
+      | {
+          /** @enum {string} */
+          type: "FileTypeNotAllowed";
+        }
+      | {
+          /** @enum {string} */
+          type: "ImageProcessingFailed";
+        }
+      | {
+          /** @enum {string} */
+          type: "NoEmbedData";
         }
       | {
           /** @enum {string} */
@@ -786,7 +812,7 @@ export interface components {
        * Format: uint32
        * @description Bitfield of user badges
        *
-       * https://docs.rs/revolt-models/latest/revolt_models/v0/enum.UserBadges.html
+       * https://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.UserBadges.html
        */
       badges?: number;
       /** @description User's current status */
@@ -795,7 +821,7 @@ export interface components {
        * Format: uint32
        * @description Enum of user flags
        *
-       * https://docs.rs/revolt-models/latest/revolt_models/v0/enum.UserFlags.html
+       * https://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.UserFlags.html
        */
       flags?: number;
       /** @description Whether this user is privileged */
@@ -1219,7 +1245,7 @@ export interface components {
       /**
        * @description Icon
        *
-       * Provide an Autumn attachment Id.
+       * Provide an Pigeon attachment Id.
        */
       icon?: string | null;
       /** @description Whether this channel is age-restricted */
@@ -1300,7 +1326,7 @@ export interface components {
        * Format: uint32
        * @description Bitfield of message flags
        *
-       * https://docs.rs/revolt-models/latest/revolt_models/v0/enum.MessageFlags.html
+       * https://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.MessageFlags.html
        */
       flags?: number;
     };
@@ -1442,12 +1468,12 @@ export interface components {
           /** @description URL to the original image */
           url: string;
           /**
-           * Format: int
+           * Format: uint
            * @description Width of the image
            */
           width: number;
           /**
-           * Format: int
+           * Format: uint
            * @description Height of the image
            */
           height: number;
@@ -1460,12 +1486,12 @@ export interface components {
           /** @description URL to the original video */
           url: string;
           /**
-           * Format: int
+           * Format: uint
            * @description Width of the video
            */
           width: number;
           /**
-           * Format: int
+           * Format: uint
            * @description Height of the video
            */
           height: number;
@@ -1481,7 +1507,7 @@ export interface components {
           title?: string | null;
           /** @description Description of text embed */
           description?: string | null;
-          /** @description ID of uploaded autumn file */
+          /** @description ID of uploaded pigeon file */
           media?: components["schemas"]["File"] | null;
           /** @description CSS Colour */
           colour?: string | null;
@@ -1565,12 +1591,12 @@ export interface components {
       /** @description URL to the original image */
       url: string;
       /**
-       * Format: int
+       * Format: uint
        * @description Width of the image
        */
       width: number;
       /**
-       * Format: int
+       * Format: uint
        * @description Height of the image
        */
       height: number;
@@ -1587,12 +1613,12 @@ export interface components {
       /** @description URL to the original video */
       url: string;
       /**
-       * Format: int
+       * Format: uint
        * @description Width of the video
        */
       width: number;
       /**
-       * Format: int
+       * Format: uint
        * @description Height of the video
        */
       height: number;
@@ -1649,7 +1675,7 @@ export interface components {
        * Format: uint32
        * @description Bitfield of message flags
        *
-       * https://docs.rs/revolt-models/latest/revolt_models/v0/enum.MessageFlags.html
+       * https://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.MessageFlags.html
        */
       flags?: number | null;
     };
@@ -1790,6 +1816,8 @@ export interface components {
       name: string;
       /** @description The avatar of the webhook */
       avatar?: components["schemas"]["File"] | null;
+      /** @description User that created this webhook */
+      creator_id: string;
       /** @description The channel this webhook belongs to */
       channel_id: string;
       /**
@@ -2924,7 +2952,7 @@ export interface operations {
       };
     };
   };
-  /** Create a new Revolt bot. */
+  /** Create a new Upryzing bot. */
   create_create_bot: {
     responses: {
       200: {
@@ -3699,7 +3727,7 @@ export interface operations {
       };
     };
   };
-  /** Create a new server. */
+  /** Create a new space. */
   server_create_create_server: {
     responses: {
       200: {
@@ -4250,7 +4278,7 @@ export interface operations {
       };
     };
   };
-  /** Create an emoji by its Autumn upload id. */
+  /** Create an emoji by its Pigeon upload id. */
   emoji_create_create_emoji: {
     parameters: {
       path: {
