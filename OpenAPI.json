@@ -6486,6 +6486,14 @@
             ],
             "nullable": true
           },
+          "pronouns": {
+            "description": "Pronouns",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "relations": {
             "description": "Relationships with other users",
             "type": "array",
@@ -6850,6 +6858,14 @@
             ],
             "nullable": true
           },
+          "pronouns": {
+            "description": "The pronouns that the User uses",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "badges": {
             "description": "Bitfield of user badges",
             "type": "integer",
@@ -6903,6 +6919,7 @@
           "ProfileContent",
           "ProfileBackground",
           "DisplayName",
+          "Pronouns",
           "Internal"
         ]
       },
