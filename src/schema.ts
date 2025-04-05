@@ -806,6 +806,8 @@ export interface components {
       display_name?: string | null;
       /** @description Avatar attachment */
       avatar?: components["schemas"]["File"] | null;
+      /** @description Pronouns */
+      pronouns?: string[] | null;
       /** @description Relationships with other users */
       relations?: components["schemas"]["Relationship"][];
       /**
@@ -949,6 +951,8 @@ export interface components {
        * This is applied as a partial.
        */
       profile?: components["schemas"]["DataUserProfile"] | null;
+      /** @description The pronouns that the User uses */
+      pronouns?: string[] | null;
       /**
        * Format: int32
        * @description Bitfield of user badges
@@ -980,6 +984,7 @@ export interface components {
       | "ProfileContent"
       | "ProfileBackground"
       | "DisplayName"
+      | "Pronouns"
       | "Internal";
     /** Username Information */
     DataChangeUsername: {
