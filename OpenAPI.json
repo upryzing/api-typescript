@@ -11,9 +11,9 @@
     },
     "license": {
       "name": "AGPLv3",
-      "url": "https://github.com/upryzing/parrot/blob/main/LICENSE"
+      "url": "https://github.com/upryzing/parrot/blob/master/LICENSE"
     },
-    "version": "0.1.0"
+    "version": "0.10.2"
   },
   "servers": [
     {
@@ -27,6 +27,10 @@
     {
       "url": "http://local.revolt.chat:14702",
       "description": "Local Revolt Environment"
+    },
+    {
+      "url": "http://local.revolt.chat:14702/0.8",
+      "description": "Local Revolt Environment (v0.8)"
     }
   ],
   "paths": {
@@ -465,8 +469,8 @@
         "tags": [
           "Relationships"
         ],
-        "summary": "Fetch Mutual Friends And Servers",
-        "description": "Retrieve a list of mutual friends and servers with another user.",
+        "summary": "Fetch Mutual Friends, Servers, Groups and DMs",
+        "description": "Retrieve a list of mutual friends, servers, groups and DMs with another user.",
         "operationId": "find_mutual_mutual",
         "parameters": [
           {
@@ -744,7 +748,7 @@
           "Bots"
         ],
         "summary": "Create Bot",
-        "description": "Create a new Upryzing bot.",
+        "description": "Create a new Revolt bot.",
         "operationId": "create_create_bot",
         "requestBody": {
           "content": {
@@ -1374,9 +1378,9 @@
           {
             "name": "limit",
             "in": "query",
-            "description": "Maximum number of messages to fetch\n\nFor fetching nearby messages, this is \\`(limit + 1)\\`.",
+            "description": "Maximum number of messages to fetch\n\nFor fetching nearby messages, this is \\`(limit + 2)\\`.",
             "schema": {
-              "description": "Maximum number of messages to fetch\n\nFor fetching nearby messages, this is \\`(limit + 1)\\`.",
+              "description": "Maximum number of messages to fetch\n\nFor fetching nearby messages, this is \\`(limit + 2)\\`.",
               "type": "integer",
               "format": "int64",
               "maximum": 100.0,
@@ -2059,6 +2063,16 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataJoinCall"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "default": {
             "description": "An error occurred.",
@@ -2075,10 +2089,58 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LegacyCreateVoiceUserResponse"
+                  "$ref": "#/components/schemas/CreateVoiceUserResponse"
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "Session Token": []
+          }
+        ]
+      }
+    },
+    "/channels/{target}/end_ring/{target_user}": {
+      "put": {
+        "tags": [
+          "Voice"
+        ],
+        "summary": "Stop Ring",
+        "description": "Stops ringing a specific user in a dm call. You must be in the call to use this endpoint, returns NotConnected otherwise. Only valid in DM/Group channels, will return NoEffect in servers. Returns NotFound if the user is not in the dm/group channel",
+        "operationId": "voice_stop_ring_stop_ring",
+        "parameters": [
+          {
+            "name": "target",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "target_user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Success"
           }
         },
         "security": [
@@ -2094,7 +2156,7 @@
           "Channel Permissions"
         ],
         "summary": "Set Role Permission",
-        "description": "Sets permissions for the specified role in this channel.\n\nChannel must be a `TextChannel` or `VoiceChannel`.",
+        "description": "Sets permissions for the specified role in this channel.\n\nChannel must be a `TextChannel`.",
         "operationId": "permissions_set_set_role_permissions",
         "parameters": [
           {
@@ -2159,8 +2221,8 @@
           "Channel Permissions"
         ],
         "summary": "Set Default Permission",
-        "description": "Sets permissions for the default role in this channel.\n\nChannel must be a `Group`, `TextChannel` or `VoiceChannel`.",
-        "operationId": "permissions_set_default_set_default_permissions",
+        "description": "Sets permissions for the default role in this channel.\n\nChannel must be a `Group` or `TextChannel`.",
+        "operationId": "permissions_set_default_set_default_channel_permissions",
         "parameters": [
           {
             "name": "target",
@@ -2500,8 +2562,8 @@
         "tags": [
           "Server Information"
         ],
-        "summary": "Create Space",
-        "description": "Create a new space.",
+        "summary": "Create Server",
+        "description": "Create a new server.",
         "operationId": "server_create_create_server",
         "requestBody": {
           "content": {
@@ -2965,7 +3027,7 @@
         ]
       }
     },
-    "/servers/{server}/members/{target}": {
+    "/servers/{server}/members/{member}": {
       "patch": {
         "tags": [
           "Server Members"
@@ -2983,7 +3045,7 @@
             }
           },
           {
-            "name": "target",
+            "name": "member",
             "in": "path",
             "required": true,
             "schema": {
@@ -3598,7 +3660,7 @@
         ],
         "summary": "Set Default Permission",
         "description": "Sets permissions for the default role in this server.",
-        "operationId": "permissions_set_default_set_default_permissions",
+        "operationId": "permissions_set_default_set_default_server_permissions",
         "parameters": [
           {
             "name": "target",
@@ -3686,6 +3748,63 @@
                   "items": {
                     "$ref": "#/components/schemas/Emoji"
                   }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session Token": []
+          }
+        ]
+      }
+    },
+    "/servers/{target}/roles/ranks": {
+      "patch": {
+        "tags": [
+          "Server Permissions"
+        ],
+        "summary": "Edits server roles ranks",
+        "description": "Edit's server role's ranks.",
+        "operationId": "roles_edit_positions_edit_role_ranks",
+        "parameters": [
+          {
+            "name": "target",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataEditRoleRanks"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Server"
                 }
               }
             }
@@ -3989,8 +4108,8 @@
               }
             }
           },
-          "200": {
-            "description": ""
+          "204": {
+            "description": "Success"
           }
         },
         "security": [
@@ -5034,6 +5153,36 @@
         ]
       }
     },
+    "/policy/acknowledge": {
+      "post": {
+        "tags": [
+          "Policy"
+        ],
+        "summary": "Acknowledge Policy Changes",
+        "description": "Accept/acknowledge changes to platform policy.",
+        "operationId": "acknowledge_policy_changes_acknowledge_policy_changes",
+        "responses": {
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Success"
+          }
+        },
+        "security": [
+          {
+            "Session Token": []
+          }
+        ]
+      }
+    },
     "/push/subscribe": {
       "post": {
         "tags": [
@@ -5260,6 +5409,425 @@
           }
         ]
       }
+    },
+    "/webhooks/{webhook_id}/{token}": {
+      "get": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Gets a webhook",
+        "description": "Gets a webhook with a token",
+        "operationId": "webhook_fetch_token_webhook_fetch_token",
+        "parameters": [
+          {
+            "name": "webhook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Webhook"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Executes a webhook",
+        "description": "Executes a webhook and sends a message",
+        "operationId": "webhook_execute_webhook_execute",
+        "parameters": [
+          {
+            "name": "webhook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "Unique key to prevent duplicate requests",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataMessageSend"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Message"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Deletes a webhook",
+        "description": "Deletes a webhook with a token",
+        "operationId": "webhook_delete_token_webhook_delete_token",
+        "parameters": [
+          {
+            "name": "webhook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Success"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Edits a webhook",
+        "description": "Edits a webhook with a token",
+        "operationId": "webhook_edit_token_webhook_edit_token",
+        "parameters": [
+          {
+            "name": "webhook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataEditWebhook"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Webhook"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webhooks/{webhook_id}": {
+      "get": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Gets a webhook",
+        "description": "Gets a webhook",
+        "operationId": "webhook_fetch_webhook_fetch",
+        "parameters": [
+          {
+            "name": "webhook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseWebhook"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session Token": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Deletes a webhook",
+        "description": "Deletes a webhook",
+        "operationId": "webhook_delete_webhook_delete",
+        "parameters": [
+          {
+            "name": "webhook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Success"
+          }
+        },
+        "security": [
+          {
+            "Session Token": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Edits a webhook",
+        "description": "Edits a webhook",
+        "operationId": "webhook_edit_webhook_edit",
+        "parameters": [
+          {
+            "name": "webhook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataEditWebhook"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Webhook"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "Session Token": []
+          }
+        ]
+      }
+    },
+    "/webhooks/{webhook_id}/{token}/github": {
+      "post": {
+        "tags": [
+          "Webhooks"
+        ],
+        "summary": "Executes a webhook specific to github",
+        "description": "Executes a webhook specific to github and sends a message containing the relevant info about the event",
+        "operationId": "webhook_execute_github_webhook_execute_github",
+        "parameters": [
+          {
+            "name": "webhook_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            }
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "X-Github-Event",
+            "in": "header",
+            "description": "The name of the github event",
+            "required": true,
+            "content": {
+              "X-Github-Event": {
+                "schema": {}
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/octet-stream": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "default": {
+            "description": "An error occurred.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": ""
+          }
+        }
+      }
     }
   },
   "components": {
@@ -5318,8 +5886,8 @@
           "dove",
           "email",
           "invite_only",
-          "pigeon",
-          "voso"
+          "livekit",
+          "pigeon"
         ],
         "properties": {
           "captcha": {
@@ -5354,7 +5922,7 @@
               }
             ]
           },
-          "voso": {
+          "livekit": {
             "description": "Voice server configuration",
             "allOf": [
               {
@@ -5405,20 +5973,44 @@
         "type": "object",
         "required": [
           "enabled",
-          "url",
-          "ws"
+          "nodes"
         ],
         "properties": {
           "enabled": {
             "description": "Whether voice is enabled",
             "type": "boolean"
           },
-          "url": {
-            "description": "URL pointing to the voice API",
+          "nodes": {
+            "description": "All livekit nodes",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceNode"
+            }
+          }
+        }
+      },
+      "VoiceNode": {
+        "title": "Information about a livekit node",
+        "type": "object",
+        "required": [
+          "lat",
+          "lon",
+          "name",
+          "public_url"
+        ],
+        "properties": {
+          "name": {
             "type": "string"
           },
-          "ws": {
-            "description": "URL pointing to the voice WebSocket server",
+          "lat": {
+            "type": "number",
+            "format": "double"
+          },
+          "lon": {
+            "type": "number",
+            "format": "double"
+          },
+          "public_url": {
             "type": "string"
           }
         }
@@ -6029,6 +6621,20 @@
               "type": {
                 "type": "string",
                 "enum": [
+                  "CannotTimeoutYourself"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
                   "ReachedMaximumBots"
                 ]
               }
@@ -6044,6 +6650,20 @@
                 "type": "string",
                 "enum": [
                   "IsBot"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "IsNotBot"
                 ]
               }
             }
@@ -6171,6 +6791,20 @@
           {
             "type": "object",
             "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "IsElevated"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
               "collection",
               "operation",
               "type"
@@ -6269,6 +6903,20 @@
               "type": {
                 "type": "string",
                 "enum": [
+                  "InvalidFlagValue"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
                   "NotAuthenticated"
                 ]
               }
@@ -6331,6 +6979,76 @@
               },
               "error": {
                 "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "LiveKitUnavailable"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "NotAVoiceChannel"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "AlreadyConnected"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "NotConnected"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "UnknownNode"
+                ]
               }
             }
           },
@@ -6437,6 +7155,24 @@
                 ]
               }
             }
+          },
+          {
+            "type": "object",
+            "required": [
+              "feature",
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "FeatureDisabled"
+                ]
+              },
+              "feature": {
+                "type": "string"
+              }
+            }
           }
         ],
         "required": [
@@ -6486,14 +7222,6 @@
             ],
             "nullable": true
           },
-          "pronouns": {
-            "description": "Pronouns",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
           "relations": {
             "description": "Relationships with other users",
             "type": "array",
@@ -6502,7 +7230,7 @@
             }
           },
           "badges": {
-            "description": "Bitfield of user badges\n\nhttps://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.UserBadges.html",
+            "description": "Bitfield of user badges\n\nhttps://docs.rs/revolt-models/latest/revolt_models/v0/enum.UserBadges.html",
             "type": "integer",
             "format": "uint32",
             "minimum": 0.0
@@ -6517,7 +7245,7 @@
             "nullable": true
           },
           "flags": {
-            "description": "Enum of user flags\n\nhttps://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.UserFlags.html",
+            "description": "Enum of user flags\n\nhttps://docs.rs/revolt-models/latest/revolt_models/v0/enum.UserFlags.html",
             "type": "integer",
             "format": "uint32",
             "minimum": 0.0
@@ -6747,15 +7475,56 @@
       },
       "RelationshipStatus": {
         "description": "User's relationship with another user (or themselves)",
-        "type": "string",
-        "enum": [
-          "None",
-          "User",
-          "Friend",
-          "Outgoing",
-          "Incoming",
-          "Blocked",
-          "BlockedOther"
+        "oneOf": [
+          {
+            "description": "No relationship with other user",
+            "type": "string",
+            "enum": [
+              "None"
+            ]
+          },
+          {
+            "description": "Other user is us",
+            "type": "string",
+            "enum": [
+              "User"
+            ]
+          },
+          {
+            "description": "Friends with the other user",
+            "type": "string",
+            "enum": [
+              "Friend"
+            ]
+          },
+          {
+            "description": "Pending friend request to user",
+            "type": "string",
+            "enum": [
+              "Outgoing"
+            ]
+          },
+          {
+            "description": "Incoming friend request from user",
+            "type": "string",
+            "enum": [
+              "Incoming"
+            ]
+          },
+          {
+            "description": "Blocked this user",
+            "type": "string",
+            "enum": [
+              "Blocked"
+            ]
+          },
+          {
+            "description": "Blocked by this user",
+            "type": "string",
+            "enum": [
+              "BlockedOther"
+            ]
+          }
         ]
       },
       "UserStatus": {
@@ -6782,13 +7551,42 @@
       },
       "Presence": {
         "description": "Presence status",
-        "type": "string",
-        "enum": [
-          "Online",
-          "Idle",
-          "Focus",
-          "Busy",
-          "Invisible"
+        "oneOf": [
+          {
+            "description": "User is online",
+            "type": "string",
+            "enum": [
+              "Online"
+            ]
+          },
+          {
+            "description": "User is not currently available",
+            "type": "string",
+            "enum": [
+              "Idle"
+            ]
+          },
+          {
+            "description": "User is focusing / will only receive mentions",
+            "type": "string",
+            "enum": [
+              "Focus"
+            ]
+          },
+          {
+            "description": "User is busy / will not receive any notifications",
+            "type": "string",
+            "enum": [
+              "Busy"
+            ]
+          },
+          {
+            "description": "User appears to be offline",
+            "type": "string",
+            "enum": [
+              "Invisible"
+            ]
+          }
         ]
       },
       "BotInformation": {
@@ -6858,14 +7656,6 @@
             ],
             "nullable": true
           },
-          "pronouns": {
-            "description": "The pronouns that the User uses",
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "nullable": true
-          },
           "badges": {
             "description": "Bitfield of user badges",
             "type": "integer",
@@ -6880,12 +7670,11 @@
           },
           "remove": {
             "description": "Fields to remove from user object",
+            "default": [],
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/FieldsUser"
-            },
-            "minItems": 1,
-            "nullable": true
+            }
           }
         }
       },
@@ -6911,16 +7700,25 @@
       },
       "FieldsUser": {
         "description": "Optional fields on user object",
-        "type": "string",
-        "enum": [
-          "Avatar",
-          "StatusText",
-          "StatusPresence",
-          "ProfileContent",
-          "ProfileBackground",
-          "DisplayName",
-          "Pronouns",
-          "Internal"
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "Avatar",
+              "StatusText",
+              "StatusPresence",
+              "ProfileContent",
+              "ProfileBackground",
+              "DisplayName"
+            ]
+          },
+          {
+            "description": "Internal field, ignore this.",
+            "type": "string",
+            "enum": [
+              "Internal"
+            ]
+          }
         ]
       },
       "DataChangeUsername": {
@@ -7167,70 +7965,15 @@
               "nsfw": {
                 "description": "Whether this channel is marked as not safe for work",
                 "type": "boolean"
-              }
-            }
-          },
-          {
-            "description": "Voice channel belonging to a server",
-            "type": "object",
-            "required": [
-              "_id",
-              "channel_type",
-              "name",
-              "server"
-            ],
-            "properties": {
-              "channel_type": {
-                "type": "string",
-                "enum": [
-                  "VoiceChannel"
-                ]
               },
-              "_id": {
-                "description": "Unique Id",
-                "type": "string"
-              },
-              "server": {
-                "description": "Id of the server this channel belongs to",
-                "type": "string"
-              },
-              "name": {
-                "description": "Display name of the channel",
-                "type": "string"
-              },
-              "description": {
-                "description": "Channel description",
-                "type": "string",
-                "nullable": true
-              },
-              "icon": {
-                "description": "Custom icon attachment",
+              "voice": {
+                "description": "Voice Information for when this channel is also a voice channel",
                 "allOf": [
                   {
-                    "$ref": "#/components/schemas/File"
+                    "$ref": "#/components/schemas/VoiceInformation"
                   }
                 ],
                 "nullable": true
-              },
-              "default_permissions": {
-                "description": "Default permissions assigned to users in this channel",
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/OverrideField"
-                  }
-                ],
-                "nullable": true
-              },
-              "role_permissions": {
-                "description": "Permissions assigned based on role to this channel",
-                "type": "object",
-                "additionalProperties": {
-                  "$ref": "#/components/schemas/OverrideField"
-                }
-              },
-              "nsfw": {
-                "description": "Whether this channel is marked as not safe for work",
-                "type": "boolean"
               }
             }
           }
@@ -7256,10 +7999,24 @@
           }
         }
       },
+      "VoiceInformation": {
+        "description": "Voice information for a channel",
+        "type": "object",
+        "properties": {
+          "max_users": {
+            "description": "Maximium amount of users allowed in the voice channel at once",
+            "type": "integer",
+            "format": "uint",
+            "minimum": 1.0,
+            "nullable": true
+          }
+        }
+      },
       "MutualResponse": {
-        "description": "Mutual friends and servers response",
+        "description": "Mutual friends, servers, groups and DMs response",
         "type": "object",
         "required": [
+          "channels",
           "servers",
           "users"
         ],
@@ -7273,6 +8030,13 @@
           },
           "servers": {
             "description": "Array of mutual server IDs that both users are in",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "channels": {
+            "description": "Array of mutual group and dm IDs that both users are in",
             "type": "array",
             "items": {
               "type": "string"
@@ -7559,12 +8323,11 @@
           },
           "remove": {
             "description": "Fields to remove from bot object",
+            "default": [],
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/FieldsBot"
-            },
-            "minItems": 1,
-            "nullable": true
+            }
           }
         }
       },
@@ -7616,14 +8379,22 @@
             "type": "boolean",
             "nullable": true
           },
+          "voice": {
+            "description": "Voice Information for voice channels",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VoiceInformation"
+              }
+            ],
+            "nullable": true
+          },
           "remove": {
             "description": "Fields to remove from channel",
-            "default": null,
+            "default": [],
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/FieldsChannel"
-            },
-            "nullable": true
+            }
           }
         }
       },
@@ -7633,7 +8404,8 @@
         "enum": [
           "Description",
           "Icon",
-          "DefaultPermissions"
+          "DefaultPermissions",
+          "Voice"
         ]
       },
       "Invite": {
@@ -7806,6 +8578,14 @@
             },
             "nullable": true
           },
+          "role_mentions": {
+            "description": "Array of role ids mentioned in this message",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "replies": {
             "description": "Array of message ids this message is replying to",
             "type": "array",
@@ -7848,7 +8628,7 @@
             "nullable": true
           },
           "flags": {
-            "description": "Bitfield of message flags\n\nhttps://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.MessageFlags.html",
+            "description": "Bitfield of message flags\n\nhttps://docs.rs/revolt-models/latest/revolt_models/v0/enum.MessageFlags.html",
             "type": "integer",
             "format": "uint32",
             "minimum": 0.0
@@ -7908,6 +8688,14 @@
               }
             ],
             "nullable": true
+          },
+          "can_publish": {
+            "description": "Whether the member is server-wide voice muted",
+            "type": "boolean"
+          },
+          "can_receive": {
+            "description": "Whether the member is server-wide voice deafened",
+            "type": "boolean"
           }
         }
       },
@@ -8209,6 +8997,32 @@
               },
               "by": {
                 "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "by",
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "call_started"
+                ]
+              },
+              "by": {
+                "type": "string"
+              },
+              "finished_at": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ISO8601 Timestamp"
+                  }
+                ],
+                "nullable": true
               }
             }
           }
@@ -8704,10 +9518,21 @@
       },
       "ImageSize": {
         "description": "Image positioning and size",
-        "type": "string",
-        "enum": [
-          "Large",
-          "Preview"
+        "oneOf": [
+          {
+            "description": "Show large preview at the bottom of the embed",
+            "type": "string",
+            "enum": [
+              "Large"
+            ]
+          },
+          {
+            "description": "Show small preview to the side of the embed",
+            "type": "string",
+            "enum": [
+              "Preview"
+            ]
+          }
         ]
       },
       "Video": {
@@ -8845,7 +9670,7 @@
             "nullable": true
           },
           "flags": {
-            "description": "Bitfield of message flags\n\nhttps://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.MessageFlags.html",
+            "description": "Bitfield of message flags\n\nhttps://docs.rs/revolt-models/latest/revolt_models/v0/enum.MessageFlags.html",
             "type": "integer",
             "format": "uint32",
             "minimum": 0.0,
@@ -8868,6 +9693,11 @@
           "mention": {
             "description": "Whether this reply should mention the message's author",
             "type": "boolean"
+          },
+          "fail_if_not_exists": {
+            "description": "Whether to error if the referenced message doesn't exist. Otherwise, send a message without this reply. Default is true.",
+            "type": "boolean",
+            "nullable": true
           }
         }
       },
@@ -8877,7 +9707,7 @@
         "properties": {
           "icon_url": {
             "type": "string",
-            "maxLength": 128,
+            "maxLength": 256,
             "minLength": 1,
             "nullable": true
           },
@@ -8956,11 +9786,28 @@
       },
       "MessageSort": {
         "description": "Message Sort\n\nSort used for retrieving messages",
-        "type": "string",
-        "enum": [
-          "Relevance",
-          "Latest",
-          "Oldest"
+        "oneOf": [
+          {
+            "description": "Sort by the most relevant messages",
+            "type": "string",
+            "enum": [
+              "Relevance"
+            ]
+          },
+          {
+            "description": "Sort by the newest messages first",
+            "type": "string",
+            "enum": [
+              "Latest"
+            ]
+          },
+          {
+            "description": "Sort by the oldest messages first",
+            "type": "string",
+            "enum": [
+              "Oldest"
+            ]
+          }
         ]
       },
       "DataMessageSearch": {
@@ -9103,16 +9950,45 @@
           }
         }
       },
-      "LegacyCreateVoiceUserResponse": {
+      "CreateVoiceUserResponse": {
         "description": "Voice server token response",
         "type": "object",
         "required": [
-          "token"
+          "token",
+          "url"
         ],
         "properties": {
           "token": {
             "description": "Token for authenticating with the voice server",
             "type": "string"
+          },
+          "url": {
+            "description": "Url of the livekit server to connect to",
+            "type": "string"
+          }
+        }
+      },
+      "DataJoinCall": {
+        "description": "Join a voice channel",
+        "type": "object",
+        "properties": {
+          "node": {
+            "description": "Name of the node to join",
+            "type": "string",
+            "nullable": true
+          },
+          "force_disconnect": {
+            "description": "Whether to force disconnect any other existing voice connections\n\nUseful for disconnecting on another device and joining on a new.",
+            "type": "boolean",
+            "nullable": true
+          },
+          "recipients": {
+            "description": "Users which should be notified of the call starting\n\nOnly used when the user is the first one connected.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           }
         }
       },
@@ -9179,7 +10055,7 @@
             ],
             "properties": {
               "permissions": {
-                "description": "Allow / deny values to set for members in this `TextChannel` or `VoiceChannel`",
+                "description": "Allow / deny values to set for members in this server channel",
                 "allOf": [
                   {
                     "$ref": "#/components/schemas/Override"
@@ -9446,10 +10322,15 @@
         "description": "Role",
         "type": "object",
         "required": [
+          "_id",
           "name",
           "permissions"
         ],
         "properties": {
+          "_id": {
+            "description": "Unique Id",
+            "type": "string"
+          },
           "name": {
             "description": "Role name",
             "type": "string"
@@ -9679,12 +10560,11 @@
           },
           "remove": {
             "description": "Fields to remove from server object",
+            "default": [],
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/FieldsServer"
-            },
-            "minItems": 1,
-            "nullable": true
+            }
           }
         }
       },
@@ -9732,15 +10612,35 @@
             "description": "Whether this channel is age restricted",
             "type": "boolean",
             "nullable": true
+          },
+          "voice": {
+            "description": "Voice Information for when this channel is also a voice channel",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VoiceInformation"
+              }
+            ],
+            "nullable": true
           }
         }
       },
       "LegacyServerChannelType": {
         "description": "Server Channel Type",
-        "type": "string",
-        "enum": [
-          "Text",
-          "Voice"
+        "oneOf": [
+          {
+            "description": "Text Channel",
+            "type": "string",
+            "enum": [
+              "Text"
+            ]
+          },
+          {
+            "description": "Voice Channel",
+            "type": "string",
+            "enum": [
+              "Voice"
+            ]
+          }
         ]
       },
       "AllMemberResponse": {
@@ -9826,14 +10726,28 @@
             ],
             "nullable": true
           },
+          "can_publish": {
+            "description": "server-wide voice muted",
+            "type": "boolean",
+            "nullable": true
+          },
+          "can_receive": {
+            "description": "server-wide voice deafened",
+            "type": "boolean",
+            "nullable": true
+          },
+          "voice_channel": {
+            "description": "voice channel to move to if already in a voice channel",
+            "type": "string",
+            "nullable": true
+          },
           "remove": {
             "description": "Fields to remove from channel object",
+            "default": [],
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/FieldsMember"
-            },
-            "minItems": 1,
-            "nullable": true
+            }
           }
         }
       },
@@ -9844,7 +10758,11 @@
           "Nickname",
           "Avatar",
           "Roles",
-          "Timeout"
+          "Timeout",
+          "CanReceive",
+          "CanPublish",
+          "JoinedAt",
+          "VoiceChannel"
         ]
       },
       "MemberQueryResponse": {
@@ -9998,7 +10916,7 @@
             "minLength": 1
           },
           "rank": {
-            "description": "Ranking position\n\nSmaller values take priority.",
+            "description": "Ranking position\n\nSmaller values take priority.\n\n**Removed** - no effect, use the edit server role positions route",
             "type": "integer",
             "format": "int64",
             "nullable": true
@@ -10030,19 +10948,18 @@
             "nullable": true
           },
           "rank": {
-            "description": "Ranking position\n\nSmaller values take priority.",
+            "description": "Ranking position\n\n**Removed** - no effect, use the edit server role positions route",
             "type": "integer",
             "format": "int64",
             "nullable": true
           },
           "remove": {
             "description": "Fields to remove from role object",
+            "default": [],
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/FieldsRole"
-            },
-            "minItems": 1,
-            "nullable": true
+            }
           }
         }
       },
@@ -10160,6 +11077,21 @@
             }
           }
         ]
+      },
+      "DataEditRoleRanks": {
+        "description": "New role positions",
+        "type": "object",
+        "required": [
+          "ranks"
+        ],
+        "properties": {
+          "ranks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "InviteResponse": {
         "description": "Public invite response",
@@ -10524,35 +11456,159 @@
       },
       "ContentReportReason": {
         "description": "Reason for reporting content (message or server)",
-        "type": "string",
-        "enum": [
-          "NoneSpecified",
-          "Illegal",
-          "IllegalGoods",
-          "IllegalExtortion",
-          "IllegalPornography",
-          "IllegalHacking",
-          "ExtremeViolence",
-          "PromotesHarm",
-          "UnsolicitedSpam",
-          "Raid",
-          "SpamAbuse",
-          "ScamsFraud",
-          "Malware",
-          "Harassment"
+        "oneOf": [
+          {
+            "description": "No reason has been specified",
+            "type": "string",
+            "enum": [
+              "NoneSpecified"
+            ]
+          },
+          {
+            "description": "Illegal content catch-all reason",
+            "type": "string",
+            "enum": [
+              "Illegal"
+            ]
+          },
+          {
+            "description": "Selling or facilitating use of drugs or other illegal goods",
+            "type": "string",
+            "enum": [
+              "IllegalGoods"
+            ]
+          },
+          {
+            "description": "Extortion or blackmail",
+            "type": "string",
+            "enum": [
+              "IllegalExtortion"
+            ]
+          },
+          {
+            "description": "Revenge or child pornography",
+            "type": "string",
+            "enum": [
+              "IllegalPornography"
+            ]
+          },
+          {
+            "description": "Illegal hacking activity",
+            "type": "string",
+            "enum": [
+              "IllegalHacking"
+            ]
+          },
+          {
+            "description": "Extreme violence, gore, or animal cruelty With exception to violence potrayed in media / creative arts",
+            "type": "string",
+            "enum": [
+              "ExtremeViolence"
+            ]
+          },
+          {
+            "description": "Content that promotes harm to others / self",
+            "type": "string",
+            "enum": [
+              "PromotesHarm"
+            ]
+          },
+          {
+            "description": "Unsolicited advertisements",
+            "type": "string",
+            "enum": [
+              "UnsolicitedSpam"
+            ]
+          },
+          {
+            "description": "This is a raid",
+            "type": "string",
+            "enum": [
+              "Raid"
+            ]
+          },
+          {
+            "description": "Spam or platform abuse",
+            "type": "string",
+            "enum": [
+              "SpamAbuse"
+            ]
+          },
+          {
+            "description": "Scams or fraud",
+            "type": "string",
+            "enum": [
+              "ScamsFraud"
+            ]
+          },
+          {
+            "description": "Distribution of malware or malicious links",
+            "type": "string",
+            "enum": [
+              "Malware"
+            ]
+          },
+          {
+            "description": "Harassment or abuse targeted at another user",
+            "type": "string",
+            "enum": [
+              "Harassment"
+            ]
+          }
         ]
       },
       "UserReportReason": {
         "description": "Reason for reporting a user",
-        "type": "string",
-        "enum": [
-          "NoneSpecified",
-          "UnsolicitedSpam",
-          "SpamAbuse",
-          "InappropriateProfile",
-          "Impersonation",
-          "BanEvasion",
-          "Underage"
+        "oneOf": [
+          {
+            "description": "No reason has been specified",
+            "type": "string",
+            "enum": [
+              "NoneSpecified"
+            ]
+          },
+          {
+            "description": "Unsolicited advertisements",
+            "type": "string",
+            "enum": [
+              "UnsolicitedSpam"
+            ]
+          },
+          {
+            "description": "User is sending spam or otherwise abusing the platform",
+            "type": "string",
+            "enum": [
+              "SpamAbuse"
+            ]
+          },
+          {
+            "description": "User's profile contains inappropriate content for a general audience",
+            "type": "string",
+            "enum": [
+              "InappropriateProfile"
+            ]
+          },
+          {
+            "description": "User is impersonating another user",
+            "type": "string",
+            "enum": [
+              "Impersonation"
+            ]
+          },
+          {
+            "description": "User is evading a ban",
+            "type": "string",
+            "enum": [
+              "BanEvasion"
+            ]
+          },
+          {
+            "description": "User is not of minimum age to use the platform",
+            "type": "string",
+            "enum": [
+              "Underage"
+            ]
+          }
         ]
       },
       "Authifier Error": {
@@ -11099,6 +12155,7 @@
             "type": "object",
             "required": [
               "_id",
+              "last_seen",
               "name",
               "result",
               "token",
@@ -11126,6 +12183,15 @@
               "name": {
                 "description": "Display name",
                 "type": "string"
+              },
+              "last_seen": {
+                "description": "When the session was last logged in (iso8601 timestamp)",
+                "type": "string"
+              },
+              "origin": {
+                "description": "What is the session origin? This could be used to differentiate sessions that come from staging/test vs prod, etc. Authifier will set this to None by default. The application must fill it in.",
+                "type": "string",
+                "nullable": true
               },
               "subscription": {
                 "description": "Web Push subscription",
@@ -11463,6 +12529,83 @@
           "user": {
             "description": "User Id",
             "type": "string"
+          }
+        }
+      },
+      "DataEditWebhook": {
+        "description": "New webhook information",
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Webhook name",
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "nullable": true
+          },
+          "avatar": {
+            "description": "Avatar ID",
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "nullable": true
+          },
+          "permissions": {
+            "description": "Webhook permissions",
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0,
+            "nullable": true
+          },
+          "remove": {
+            "description": "Fields to remove from webhook",
+            "default": [],
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldsWebhook"
+            }
+          }
+        }
+      },
+      "FieldsWebhook": {
+        "description": "Optional fields on webhook object",
+        "type": "string",
+        "enum": [
+          "Avatar"
+        ]
+      },
+      "ResponseWebhook": {
+        "description": "Webhook information",
+        "type": "object",
+        "required": [
+          "channel_id",
+          "id",
+          "name",
+          "permissions"
+        ],
+        "properties": {
+          "id": {
+            "description": "Webhook Id",
+            "type": "string"
+          },
+          "name": {
+            "description": "Webhook name",
+            "type": "string"
+          },
+          "avatar": {
+            "description": "Avatar ID",
+            "type": "string",
+            "nullable": true
+          },
+          "channel_id": {
+            "description": "The channel this webhook belongs to",
+            "type": "string"
+          },
+          "permissions": {
+            "description": "The permissions for the webhook",
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0.0
           }
         }
       }
