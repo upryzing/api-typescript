@@ -1,6 +1,6 @@
 {
   "name": "@upryzing/api",
-  "version": "0.1.0",
+  "version": "0.10.2",
   "description": "Upryzing API Library",
   "main": "dist/index.js",
   "module": "esm/index.js",
