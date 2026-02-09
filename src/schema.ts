@@ -51,7 +51,7 @@ export interface paths {
     get: operations["open_dm_open_dm"];
   };
   "/users/{target}/mutual": {
-    /** Retrieve a list of mutual friends and servers with another user. */
+    /** Retrieve a list of mutual friends, servers, groups and DMs with another user. */
     get: operations["find_mutual_mutual"];
   };
   "/users/{target}/friend": {
@@ -71,7 +71,7 @@ export interface paths {
     post: operations["send_friend_request_send_friend_request"];
   };
   "/bots/create": {
-    /** Create a new Upryzing bot. */
+    /** Create a new Revolt bot. */
     post: operations["create_create_bot"];
   };
   "/bots/{target}/invite": {
@@ -172,11 +172,15 @@ export interface paths {
     /** Asks the voice server for a token to join the call. */
     post: operations["voice_join_call"];
   };
+  "/channels/{target}/end_ring/{target_user}": {
+    /** Stops ringing a specific user in a dm call. You must be in the call to use this endpoint, returns NotConnected otherwise. Only valid in DM/Group channels, will return NoEffect in servers. Returns NotFound if the user is not in the dm/group channel */
+    put: operations["voice_stop_ring_stop_ring"];
+  };
   "/channels/{target}/permissions/{role_id}": {
     /**
      * Sets permissions for the specified role in this channel.
      *
-     * Channel must be a `TextChannel` or `VoiceChannel`.
+     * Channel must be a `TextChannel`.
      */
     put: operations["permissions_set_set_role_permissions"];
   };
@@ -184,9 +188,9 @@ export interface paths {
     /**
      * Sets permissions for the default role in this channel.
      *
-     * Channel must be a `Group`, `TextChannel` or `VoiceChannel`.
+     * Channel must be a `Group` or `TextChannel`.
      */
-    put: operations["permissions_set_default_set_default_permissions"];
+    put: operations["permissions_set_default_set_default_channel_permissions"];
   };
   "/channels/{target}/messages/{msg}/reactions/{emoji}": {
     /** React to a given message. */
@@ -215,7 +219,7 @@ export interface paths {
     get: operations["webhook_fetch_all_fetch_webhooks"];
   };
   "/servers/create": {
-    /** Create a new space. */
+    /** Create a new server. */
     post: operations["server_create_create_server"];
   };
   "/servers/{target}": {
@@ -244,7 +248,7 @@ export interface paths {
     /** Removes a member from the server. */
     delete: operations["member_remove_kick"];
   };
-  "/servers/{server}/members/{target}": {
+  "/servers/{server}/members/{member}": {
     /** Edit a member by their id. */
     patch: operations["member_edit_edit"];
   };
@@ -284,11 +288,15 @@ export interface paths {
   };
   "/servers/{target}/permissions/default": {
     /** Sets permissions for the default role in this server. */
-    put: operations["permissions_set_default_set_default_permissions"];
+    put: operations["permissions_set_default_set_default_server_permissions"];
   };
   "/servers/{target}/emojis": {
     /** Fetch all emoji on a server. */
     get: operations["emoji_list_list_emoji"];
+  };
+  "/servers/{target}/roles/ranks": {
+    /** Edit's server role's ranks. */
+    patch: operations["roles_edit_positions_edit_role_ranks"];
   };
   "/invites/{target}": {
     /** Fetch an invite by its id. */
@@ -406,6 +414,10 @@ export interface paths {
     /** This sets a new username, completes onboarding and allows a user to start using Revolt. */
     post: operations["complete_complete"];
   };
+  "/policy/acknowledge": {
+    /** Accept/acknowledge changes to platform policy. */
+    post: operations["acknowledge_policy_changes_acknowledge_policy_changes"];
+  };
   "/push/subscribe": {
     /**
      * Create a new Web Push subscription.
@@ -433,6 +445,28 @@ export interface paths {
   "/sync/unreads": {
     /** Fetch information about unread state on channels. */
     get: operations["get_unreads_unreads"];
+  };
+  "/webhooks/{webhook_id}/{token}": {
+    /** Gets a webhook with a token */
+    get: operations["webhook_fetch_token_webhook_fetch_token"];
+    /** Executes a webhook and sends a message */
+    post: operations["webhook_execute_webhook_execute"];
+    /** Deletes a webhook with a token */
+    delete: operations["webhook_delete_token_webhook_delete_token"];
+    /** Edits a webhook with a token */
+    patch: operations["webhook_edit_token_webhook_edit_token"];
+  };
+  "/webhooks/{webhook_id}": {
+    /** Gets a webhook */
+    get: operations["webhook_fetch_webhook_fetch"];
+    /** Deletes a webhook */
+    delete: operations["webhook_delete_webhook_delete"];
+    /** Edits a webhook */
+    patch: operations["webhook_edit_webhook_edit"];
+  };
+  "/webhooks/{webhook_id}/{token}/github": {
+    /** Executes a webhook specific to github and sends a message containing the relevant info about the event */
+    post: operations["webhook_execute_github_webhook_execute_github"];
   };
 }
 
@@ -466,7 +500,7 @@ export interface components {
       /** @description Proxy service configuration */
       dove: components["schemas"]["Feature"];
       /** @description Voice server configuration */
-      voso: components["schemas"]["VoiceFeature"];
+      livekit: components["schemas"]["VoiceFeature"];
     };
     /** hCaptcha Configuration */
     CaptchaFeature: {
@@ -486,10 +520,17 @@ export interface components {
     VoiceFeature: {
       /** @description Whether voice is enabled */
       enabled: boolean;
-      /** @description URL pointing to the voice API */
-      url: string;
-      /** @description URL pointing to the voice WebSocket server */
-      ws: string;
+      /** @description All livekit nodes */
+      nodes: components["schemas"]["VoiceNode"][];
+    };
+    /** Information about a livekit node */
+    VoiceNode: {
+      name: string;
+      /** Format: double */
+      lat: number;
+      /** Format: double */
+      lon: number;
+      public_url: string;
     };
     /** Build Information */
     BuildInformation: {
@@ -673,11 +714,19 @@ export interface components {
         }
       | {
           /** @enum {string} */
+          type: "CannotTimeoutYourself";
+        }
+      | {
+          /** @enum {string} */
           type: "ReachedMaximumBots";
         }
       | {
           /** @enum {string} */
           type: "IsBot";
+        }
+      | {
+          /** @enum {string} */
+          type: "IsNotBot";
         }
       | {
           /** @enum {string} */
@@ -715,6 +764,10 @@ export interface components {
         }
       | {
           /** @enum {string} */
+          type: "IsElevated";
+        }
+      | {
+          /** @enum {string} */
           type: "DatabaseError";
           operation: string;
           collection: string;
@@ -741,6 +794,10 @@ export interface components {
         }
       | {
           /** @enum {string} */
+          type: "InvalidFlagValue";
+        }
+      | {
+          /** @enum {string} */
           type: "NotAuthenticated";
         }
       | {
@@ -759,6 +816,26 @@ export interface components {
           /** @enum {string} */
           type: "FailedValidation";
           error: string;
+        }
+      | {
+          /** @enum {string} */
+          type: "LiveKitUnavailable";
+        }
+      | {
+          /** @enum {string} */
+          type: "NotAVoiceChannel";
+        }
+      | {
+          /** @enum {string} */
+          type: "AlreadyConnected";
+        }
+      | {
+          /** @enum {string} */
+          type: "NotConnected";
+        }
+      | {
+          /** @enum {string} */
+          type: "UnknownNode";
         }
       | {
           /** @enum {string} */
@@ -790,6 +867,11 @@ export interface components {
           /** @enum {string} */
           type: "VosoUnavailable";
         }
+      | {
+          /** @enum {string} */
+          type: "FeatureDisabled";
+          feature: string;
+        }
     ) & {
       /** @description Where this error occurred */
       location: string;
@@ -806,15 +888,13 @@ export interface components {
       display_name?: string | null;
       /** @description Avatar attachment */
       avatar?: components["schemas"]["File"] | null;
-      /** @description Pronouns */
-      pronouns?: string[] | null;
       /** @description Relationships with other users */
       relations?: components["schemas"]["Relationship"][];
       /**
        * Format: uint32
        * @description Bitfield of user badges
        *
-       * https://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.UserBadges.html
+       * https://docs.rs/revolt-models/latest/revolt_models/v0/enum.UserBadges.html
        */
       badges?: number;
       /** @description User's current status */
@@ -823,7 +903,7 @@ export interface components {
        * Format: uint32
        * @description Enum of user flags
        *
-       * https://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.UserFlags.html
+       * https://docs.rs/revolt-models/latest/revolt_models/v0/enum.UserFlags.html
        */
       flags?: number;
       /** @description Whether this user is privileged */
@@ -899,10 +979,7 @@ export interface components {
       /** @description Relationship status with them */
       status: components["schemas"]["RelationshipStatus"];
     };
-    /**
-     * @description User's relationship with another user (or themselves)
-     * @enum {string}
-     */
+    /** @description User's relationship with another user (or themselves) */
     RelationshipStatus:
       | "None"
       | "User"
@@ -918,10 +995,7 @@ export interface components {
       /** @description Current presence option */
       presence?: components["schemas"]["Presence"] | null;
     };
-    /**
-     * @description Presence status
-     * @enum {string}
-     */
+    /** @description Presence status */
     Presence: "Online" | "Idle" | "Focus" | "Busy" | "Invisible";
     /** @description Bot information for if the user is a bot */
     BotInformation: {
@@ -951,8 +1025,6 @@ export interface components {
        * This is applied as a partial.
        */
       profile?: components["schemas"]["DataUserProfile"] | null;
-      /** @description The pronouns that the User uses */
-      pronouns?: string[] | null;
       /**
        * Format: int32
        * @description Bitfield of user badges
@@ -963,8 +1035,11 @@ export interface components {
        * @description Enum of user flags
        */
       flags?: number | null;
-      /** @description Fields to remove from user object */
-      remove?: components["schemas"]["FieldsUser"][] | null;
+      /**
+       * @description Fields to remove from user object
+       * @default
+       */
+      remove?: components["schemas"]["FieldsUser"][];
     };
     /** @description New user profile data */
     DataUserProfile: {
@@ -973,18 +1048,16 @@ export interface components {
       /** @description Attachment Id for background */
       background?: string | null;
     };
-    /**
-     * @description Optional fields on user object
-     * @enum {string}
-     */
+    /** @description Optional fields on user object */
     FieldsUser:
-      | "Avatar"
-      | "StatusText"
-      | "StatusPresence"
-      | "ProfileContent"
-      | "ProfileBackground"
-      | "DisplayName"
-      | "Pronouns"
+      | (
+          | "Avatar"
+          | "StatusText"
+          | "StatusPresence"
+          | "ProfileContent"
+          | "ProfileBackground"
+          | "DisplayName"
+        )
       | "Internal";
     /** Username Information */
     DataChangeUsername: {
@@ -1070,28 +1143,8 @@ export interface components {
           };
           /** @description Whether this channel is marked as not safe for work */
           nsfw?: boolean;
-        }
-      | {
-          /** @enum {string} */
-          channel_type: "VoiceChannel";
-          /** @description Unique Id */
-          _id: string;
-          /** @description Id of the server this channel belongs to */
-          server: string;
-          /** @description Display name of the channel */
-          name: string;
-          /** @description Channel description */
-          description?: string | null;
-          /** @description Custom icon attachment */
-          icon?: components["schemas"]["File"] | null;
-          /** @description Default permissions assigned to users in this channel */
-          default_permissions?: components["schemas"]["OverrideField"] | null;
-          /** @description Permissions assigned based on role to this channel */
-          role_permissions?: {
-            [key: string]: components["schemas"]["OverrideField"];
-          };
-          /** @description Whether this channel is marked as not safe for work */
-          nsfw?: boolean;
+          /** @description Voice Information for when this channel is also a voice channel */
+          voice?: components["schemas"]["VoiceInformation"] | null;
         };
     /** @description Representation of a single permission override as it appears on models and in the database */
     OverrideField: {
@@ -1106,12 +1159,22 @@ export interface components {
        */
       d: number;
     };
-    /** @description Mutual friends and servers response */
+    /** @description Voice information for a channel */
+    VoiceInformation: {
+      /**
+       * Format: uint
+       * @description Maximium amount of users allowed in the voice channel at once
+       */
+      max_users?: number | null;
+    };
+    /** @description Mutual friends, servers, groups and DMs response */
     MutualResponse: {
       /** @description Array of mutual user IDs that both users are friends with */
       users: string[];
       /** @description Array of mutual server IDs that both users are in */
       servers: string[];
+      /** @description Array of mutual group and dm IDs that both users are in */
+      channels: string[];
     };
     /** @description User lookup information */
     DataSendFriendRequest: {
@@ -1231,8 +1294,11 @@ export interface components {
       analytics?: boolean | null;
       /** @description Interactions URL */
       interactions_url?: string | null;
-      /** @description Fields to remove from bot object */
-      remove?: components["schemas"]["FieldsBot"][] | null;
+      /**
+       * @description Fields to remove from bot object
+       * @default
+       */
+      remove?: components["schemas"]["FieldsBot"][];
     };
     /**
      * @description Optional fields on bot object
@@ -1257,14 +1323,19 @@ export interface components {
       nsfw?: boolean | null;
       /** @description Whether this channel is archived */
       archived?: boolean | null;
-      /** @description Fields to remove from channel */
-      remove?: components["schemas"]["FieldsChannel"][] | null;
+      /** @description Voice Information for voice channels */
+      voice?: components["schemas"]["VoiceInformation"] | null;
+      /**
+       * @description Fields to remove from channel
+       * @default
+       */
+      remove?: components["schemas"]["FieldsChannel"][];
     };
     /**
      * @description Optional fields on channel object
      * @enum {string}
      */
-    FieldsChannel: "Description" | "Icon" | "DefaultPermissions";
+    FieldsChannel: "Description" | "Icon" | "DefaultPermissions" | "Voice";
     /** @description Invite */
     Invite:
       | {
@@ -1317,6 +1388,8 @@ export interface components {
       embeds?: components["schemas"]["Embed"][] | null;
       /** @description Array of user ids mentioned in this message */
       mentions?: string[] | null;
+      /** @description Array of role ids mentioned in this message */
+      role_mentions?: string[] | null;
       /** @description Array of message ids this message is replying to */
       replies?: string[] | null;
       /** @description Hashmap of emoji IDs to array of user IDs */
@@ -1331,7 +1404,7 @@ export interface components {
        * Format: uint32
        * @description Bitfield of message flags
        *
-       * https://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.MessageFlags.html
+       * https://docs.rs/revolt-models/latest/revolt_models/v0/enum.MessageFlags.html
        */
       flags?: number;
     };
@@ -1349,6 +1422,10 @@ export interface components {
       roles?: string[];
       /** @description Timestamp this member is timed out until */
       timeout?: components["schemas"]["ISO8601 Timestamp"] | null;
+      /** @description Whether the member is server-wide voice muted */
+      can_publish?: boolean;
+      /** @description Whether the member is server-wide voice deafened */
+      can_receive?: boolean;
     };
     /** @description Composite primary key consisting of server and user id */
     MemberCompositeKey: {
@@ -1440,6 +1517,12 @@ export interface components {
           type: "message_unpinned";
           id: string;
           by: string;
+        }
+      | {
+          /** @enum {string} */
+          type: "call_started";
+          by: string;
+          finished_at?: components["schemas"]["ISO8601 Timestamp"] | null;
         };
     /** @description Embed */
     Embed:
@@ -1608,10 +1691,7 @@ export interface components {
       /** @description Positioning and size */
       size: components["schemas"]["ImageSize"];
     };
-    /**
-     * @description Image positioning and size
-     * @enum {string}
-     */
+    /** @description Image positioning and size */
     ImageSize: "Large" | "Preview";
     /** @description Video */
     Video: {
@@ -1680,7 +1760,7 @@ export interface components {
        * Format: uint32
        * @description Bitfield of message flags
        *
-       * https://docs.rs/upryzing-models/latest/upryzing_models/v0/enum.MessageFlags.html
+       * https://docs.rs/revolt-models/latest/revolt_models/v0/enum.MessageFlags.html
        */
       flags?: number | null;
     };
@@ -1690,6 +1770,8 @@ export interface components {
       id: string;
       /** @description Whether this reply should mention the message's author */
       mention: boolean;
+      /** @description Whether to error if the referenced message doesn't exist. Otherwise, send a message without this reply. Default is true. */
+      fail_if_not_exists?: boolean | null;
     };
     /** @description Representation of a text embed before it is sent. */
     SendableEmbed: {
@@ -1715,7 +1797,6 @@ export interface components {
      * @description Message Sort
      *
      * Sort used for retrieving messages
-     * @enum {string}
      */
     MessageSort: "Relevance" | "Latest" | "Oldest";
     /** @description Options for searching for messages */
@@ -1778,9 +1859,28 @@ export interface components {
       nsfw?: boolean | null;
     };
     /** @description Voice server token response */
-    LegacyCreateVoiceUserResponse: {
+    CreateVoiceUserResponse: {
       /** @description Token for authenticating with the voice server */
       token: string;
+      /** @description Url of the livekit server to connect to */
+      url: string;
+    };
+    /** @description Join a voice channel */
+    DataJoinCall: {
+      /** @description Name of the node to join */
+      node?: string | null;
+      /**
+       * @description Whether to force disconnect any other existing voice connections
+       *
+       * Useful for disconnecting on another device and joining on a new.
+       */
+      force_disconnect?: boolean | null;
+      /**
+       * @description Users which should be notified of the call starting
+       *
+       * Only used when the user is the first one connected.
+       */
+      recipients?: string[] | null;
     };
     /** @description New role permissions */
     DataSetRolePermissions: {
@@ -1810,7 +1910,7 @@ export interface components {
           permissions: number;
         }
       | {
-          /** @description Allow / deny values to set for members in this `TextChannel` or `VoiceChannel` */
+          /** @description Allow / deny values to set for members in this server channel */
           permissions: components["schemas"]["Override"];
         };
     /** @description Webhook */
@@ -1906,6 +2006,8 @@ export interface components {
     };
     /** @description Role */
     Role: {
+      /** @description Unique Id */
+      _id: string;
       /** @description Role name */
       name: string;
       /** @description Permissions available to this role */
@@ -2003,8 +2105,11 @@ export interface components {
        * Must be enabled in order to show up on [Revolt Discover](https://rvlt.gg).
        */
       analytics?: boolean | null;
-      /** @description Fields to remove from server object */
-      remove?: components["schemas"]["FieldsServer"][] | null;
+      /**
+       * @description Fields to remove from server object
+       * @default
+       */
+      remove?: components["schemas"]["FieldsServer"][];
     };
     /**
      * @description Optional fields on server object
@@ -2029,11 +2134,10 @@ export interface components {
       description?: string | null;
       /** @description Whether this channel is age restricted */
       nsfw?: boolean | null;
+      /** @description Voice Information for when this channel is also a voice channel */
+      voice?: components["schemas"]["VoiceInformation"] | null;
     };
-    /**
-     * @description Server Channel Type
-     * @enum {string}
-     */
+    /** @description Server Channel Type */
     LegacyServerChannelType: "Text" | "Voice";
     /** @description Response with all members */
     AllMemberResponse: {
@@ -2059,14 +2163,31 @@ export interface components {
       roles?: string[] | null;
       /** @description Timestamp this member is timed out until */
       timeout?: components["schemas"]["ISO8601 Timestamp"] | null;
-      /** @description Fields to remove from channel object */
-      remove?: components["schemas"]["FieldsMember"][] | null;
+      /** @description server-wide voice muted */
+      can_publish?: boolean | null;
+      /** @description server-wide voice deafened */
+      can_receive?: boolean | null;
+      /** @description voice channel to move to if already in a voice channel */
+      voice_channel?: string | null;
+      /**
+       * @description Fields to remove from channel object
+       * @default
+       */
+      remove?: components["schemas"]["FieldsMember"][];
     };
     /**
      * @description Optional fields on server member object
      * @enum {string}
      */
-    FieldsMember: "Nickname" | "Avatar" | "Roles" | "Timeout";
+    FieldsMember:
+      | "Nickname"
+      | "Avatar"
+      | "Roles"
+      | "Timeout"
+      | "CanReceive"
+      | "CanPublish"
+      | "JoinedAt"
+      | "VoiceChannel";
     /** Query members by name */
     MemberQueryResponse: {
       /** @description List of members */
@@ -2120,6 +2241,8 @@ export interface components {
        * @description Ranking position
        *
        * Smaller values take priority.
+       *
+       * **Removed** - no effect, use the edit server role positions route
        */
       rank?: number | null;
     };
@@ -2135,11 +2258,14 @@ export interface components {
        * Format: int64
        * @description Ranking position
        *
-       * Smaller values take priority.
+       * **Removed** - no effect, use the edit server role positions route
        */
       rank?: number | null;
-      /** @description Fields to remove from role object */
-      remove?: components["schemas"]["FieldsRole"][] | null;
+      /**
+       * @description Fields to remove from role object
+       * @default
+       */
+      remove?: components["schemas"]["FieldsRole"][];
     };
     /**
      * @description Optional fields on server object
@@ -2182,6 +2308,10 @@ export interface components {
           /** @enum {string} */
           type: "Detached";
         };
+    /** @description New role positions */
+    DataEditRoleRanks: {
+      ranks: string[];
+    };
     /** @description Public invite response */
     InviteResponse:
       | {
@@ -2296,10 +2426,7 @@ export interface components {
           /** @description Message context */
           message_id?: string | null;
         };
-    /**
-     * @description Reason for reporting content (message or server)
-     * @enum {string}
-     */
+    /** @description Reason for reporting content (message or server) */
     ContentReportReason:
       | "NoneSpecified"
       | "Illegal"
@@ -2315,10 +2442,7 @@ export interface components {
       | "ScamsFraud"
       | "Malware"
       | "Harassment";
-    /**
-     * @description Reason for reporting a user
-     * @enum {string}
-     */
+    /** @description Reason for reporting a user */
     UserReportReason:
       | "NoneSpecified"
       | "UnsolicitedSpam"
@@ -2510,6 +2634,10 @@ export interface components {
           token: string;
           /** @description Display name */
           name: string;
+          /** @description When the session was last logged in (iso8601 timestamp) */
+          last_seen: string;
+          /** @description What is the session origin? This could be used to differentiate sessions that come from staging/test vs prod, etc. Authifier will set this to None by default. The application must fill it in. */
+          origin?: string | null;
           /** @description Web Push subscription */
           subscription?: components["schemas"]["WebPushSubscription"] | null;
         }
@@ -2623,6 +2751,44 @@ export interface components {
       channel: string;
       /** @description User Id */
       user: string;
+    };
+    /** @description New webhook information */
+    DataEditWebhook: {
+      /** @description Webhook name */
+      name?: string | null;
+      /** @description Avatar ID */
+      avatar?: string | null;
+      /**
+       * Format: uint64
+       * @description Webhook permissions
+       */
+      permissions?: number | null;
+      /**
+       * @description Fields to remove from webhook
+       * @default
+       */
+      remove?: components["schemas"]["FieldsWebhook"][];
+    };
+    /**
+     * @description Optional fields on webhook object
+     * @enum {string}
+     */
+    FieldsWebhook: "Avatar";
+    /** @description Webhook information */
+    ResponseWebhook: {
+      /** @description Webhook Id */
+      id: string;
+      /** @description Webhook name */
+      name: string;
+      /** @description Avatar ID */
+      avatar?: string | null;
+      /** @description The channel this webhook belongs to */
+      channel_id: string;
+      /**
+       * Format: uint64
+       * @description The permissions for the webhook
+       */
+      permissions: number;
     };
   };
 }
@@ -2831,7 +2997,7 @@ export interface operations {
       };
     };
   };
-  /** Retrieve a list of mutual friends and servers with another user. */
+  /** Retrieve a list of mutual friends, servers, groups and DMs with another user. */
   find_mutual_mutual: {
     parameters: {
       path: {
@@ -2957,7 +3123,7 @@ export interface operations {
       };
     };
   };
-  /** Create a new Upryzing bot. */
+  /** Create a new Revolt bot. */
   create_create_bot: {
     responses: {
       200: {
@@ -3251,7 +3417,7 @@ export interface operations {
         /**
          * Maximum number of messages to fetch
          *
-         * For fetching nearby messages, this is \`(limit + 1)\`.
+         * For fetching nearby messages, this is \`(limit + 2)\`.
          */
         limit?: number | null;
         /** Message id before which messages should be fetched */
@@ -3544,9 +3710,33 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["LegacyCreateVoiceUserResponse"];
+          "application/json": components["schemas"]["CreateVoiceUserResponse"];
         };
       };
+      /** An error occurred. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DataJoinCall"];
+      };
+    };
+  };
+  /** Stops ringing a specific user in a dm call. You must be in the call to use this endpoint, returns NotConnected otherwise. Only valid in DM/Group channels, will return NoEffect in servers. Returns NotFound if the user is not in the dm/group channel */
+  voice_stop_ring_stop_ring: {
+    parameters: {
+      path: {
+        target: components["schemas"]["Id"];
+        target_user: components["schemas"]["Id"];
+      };
+    };
+    responses: {
+      /** Success */
+      204: never;
       /** An error occurred. */
       default: {
         content: {
@@ -3558,7 +3748,7 @@ export interface operations {
   /**
    * Sets permissions for the specified role in this channel.
    *
-   * Channel must be a `TextChannel` or `VoiceChannel`.
+   * Channel must be a `TextChannel`.
    */
   permissions_set_set_role_permissions: {
     parameters: {
@@ -3586,8 +3776,12 @@ export interface operations {
       };
     };
   };
-  /** Sets permissions for the default role in this server. */
-  permissions_set_default_set_default_permissions: {
+  /**
+   * Sets permissions for the default role in this channel.
+   *
+   * Channel must be a `Group` or `TextChannel`.
+   */
+  permissions_set_default_set_default_channel_permissions: {
     parameters: {
       path: {
         target: components["schemas"]["Id"];
@@ -3596,7 +3790,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["Server"];
+          "application/json": components["schemas"]["Channel"];
         };
       };
       /** An error occurred. */
@@ -3608,7 +3802,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["DataPermissionsValue"];
+        "application/json": components["schemas"]["DataDefaultChannelPermissions"];
       };
     };
   };
@@ -3732,7 +3926,7 @@ export interface operations {
       };
     };
   };
-  /** Create a new space. */
+  /** Create a new server. */
   server_create_create_server: {
     responses: {
       200: {
@@ -3944,7 +4138,7 @@ export interface operations {
     parameters: {
       path: {
         server: components["schemas"]["Id"];
-        target: components["schemas"]["Id"];
+        member: components["schemas"]["Id"];
       };
     };
     responses: {
@@ -4202,6 +4396,32 @@ export interface operations {
       };
     };
   };
+  /** Sets permissions for the default role in this server. */
+  permissions_set_default_set_default_server_permissions: {
+    parameters: {
+      path: {
+        target: components["schemas"]["Id"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["Server"];
+        };
+      };
+      /** An error occurred. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DataPermissionsValue"];
+      };
+    };
+  };
   /** Fetch all emoji on a server. */
   emoji_list_list_emoji: {
     parameters: {
@@ -4220,6 +4440,32 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["Error"];
         };
+      };
+    };
+  };
+  /** Edit's server role's ranks. */
+  roles_edit_positions_edit_role_ranks: {
+    parameters: {
+      path: {
+        target: components["schemas"]["Id"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["Server"];
+        };
+      };
+      /** An error occurred. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DataEditRoleRanks"];
       };
     };
   };
@@ -4351,7 +4597,8 @@ export interface operations {
   /** Report a piece of content to the moderation team. */
   report_content_report_content: {
     responses: {
-      200: unknown;
+      /** Success */
+      204: never;
       /** An error occurred. */
       default: {
         content: {
@@ -4823,6 +5070,19 @@ export interface operations {
       };
     };
   };
+  /** Accept/acknowledge changes to platform policy. */
+  acknowledge_policy_changes_acknowledge_policy_changes: {
+    responses: {
+      /** Success */
+      204: never;
+      /** An error occurred. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
   /**
    * Create a new Web Push subscription.
    *
@@ -4924,6 +5184,197 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["Error"];
         };
+      };
+    };
+  };
+  /** Gets a webhook with a token */
+  webhook_fetch_token_webhook_fetch_token: {
+    parameters: {
+      path: {
+        webhook_id: components["schemas"]["Id"];
+        token: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["Webhook"];
+        };
+      };
+      /** An error occurred. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  /** Executes a webhook and sends a message */
+  webhook_execute_webhook_execute: {
+    parameters: {
+      path: {
+        webhook_id: components["schemas"]["Id"];
+        token: string;
+      };
+      header: {
+        /** Unique key to prevent duplicate requests */
+        "Idempotency-Key"?: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["Message"];
+        };
+      };
+      /** An error occurred. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DataMessageSend"];
+      };
+    };
+  };
+  /** Deletes a webhook with a token */
+  webhook_delete_token_webhook_delete_token: {
+    parameters: {
+      path: {
+        webhook_id: components["schemas"]["Id"];
+        token: string;
+      };
+    };
+    responses: {
+      /** Success */
+      204: never;
+      /** An error occurred. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  /** Edits a webhook with a token */
+  webhook_edit_token_webhook_edit_token: {
+    parameters: {
+      path: {
+        webhook_id: components["schemas"]["Id"];
+        token: string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["Webhook"];
+        };
+      };
+      /** An error occurred. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DataEditWebhook"];
+      };
+    };
+  };
+  /** Gets a webhook */
+  webhook_fetch_webhook_fetch: {
+    parameters: {
+      path: {
+        webhook_id: components["schemas"]["Id"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["ResponseWebhook"];
+        };
+      };
+      /** An error occurred. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  /** Deletes a webhook */
+  webhook_delete_webhook_delete: {
+    parameters: {
+      path: {
+        webhook_id: components["schemas"]["Id"];
+      };
+    };
+    responses: {
+      /** Success */
+      204: never;
+      /** An error occurred. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+  };
+  /** Edits a webhook */
+  webhook_edit_webhook_edit: {
+    parameters: {
+      path: {
+        webhook_id: components["schemas"]["Id"];
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": components["schemas"]["Webhook"];
+        };
+      };
+      /** An error occurred. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DataEditWebhook"];
+      };
+    };
+  };
+  /** Executes a webhook specific to github and sends a message containing the relevant info about the event */
+  webhook_execute_github_webhook_execute_github: {
+    parameters: {
+      path: {
+        webhook_id: components["schemas"]["Id"];
+        token: string;
+      };
+      header: {
+        /** The name of the github event */
+        "X-Github-Event": unknown;
+      };
+    };
+    responses: {
+      200: unknown;
+      /** An error occurred. */
+      default: {
+        content: {
+          "application/json": components["schemas"]["Error"];
+        };
+      };
+    };
+    requestBody: {
+      content: {
+        "application/octet-stream": string;
       };
     };
   };
