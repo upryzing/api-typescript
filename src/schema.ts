@@ -886,6 +886,8 @@ export interface components {
       discriminator: string;
       /** @description Display name */
       display_name?: string | null;
+      /** @description Preferred pronouns */
+      pronouns?: string[] | null;
       /** @description Avatar attachment */
       avatar?: components["schemas"]["File"] | null;
       /** @description Relationships with other users */
@@ -1015,6 +1017,7 @@ export interface components {
     DataEditUser: {
       /** @description New display name */
       display_name?: string | null;
+      pronouns?: string[] | null;
       /** @description Attachment Id for avatar */
       avatar?: string | null;
       /** @description New user status */
@@ -1057,6 +1060,7 @@ export interface components {
           | "ProfileContent"
           | "ProfileBackground"
           | "DisplayName"
+          | "Pronouns"
         )
       | "Internal";
     /** Username Information */
