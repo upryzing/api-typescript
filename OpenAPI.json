@@ -7213,6 +7213,14 @@
             "type": "string",
             "nullable": true
           },
+          "pronouns": {
+            "description": "Preferred pronouns",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "avatar": {
             "description": "Avatar attachment",
             "allOf": [
@@ -7631,6 +7639,13 @@
             "pattern": "^[^\\u200B\\n\\r]+$",
             "nullable": true
           },
+          "pronouns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "avatar": {
             "description": "Attachment Id for avatar",
             "type": "string",
@@ -7709,7 +7724,8 @@
               "StatusPresence",
               "ProfileContent",
               "ProfileBackground",
-              "DisplayName"
+              "DisplayName",
+              "Pronouns"
             ]
           },
           {
