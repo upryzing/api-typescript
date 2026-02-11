@@ -1,14 +1,14 @@
 {
-  "name": "stoat-api",
+  "name": "@upryzing/api",
   "version": "0.10.3",
-  "description": "Stoat API Library",
+  "description": "Upryzing API Library",
   "type": "module",
   "exports": {
     ".": "./lib/index.js"
   },
   "types": "lib/index.d.ts",
   "homepage": "https://developers.stoat.chat",
-  "repository": "https://github.com/stoatchat/javascript-client-api",
+  "repository": "https://github.com/upryzing/api-typescript",
   "author": "Paul Makles <insrt.uk>",
   "license": "MIT",
   "scripts": {

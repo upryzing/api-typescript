@@ -30,8 +30,8 @@ jobs:
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
         with:
-          author_name: Stoat CI
-          author_email: stoat-ci@users.noreply.github.com
+          author_name: Upryzing CI
+          author_email: upryzing-ci@users.noreply.github.com
           message: "chore: build library from latest spec [skip ci]"
 
       - name: Find current API version
@@ -54,34 +54,34 @@ jobs:
         if: steps.check-tag.outputs.exists == 'false'
         uses: EndBug/add-and-commit@v9
         with:
-          author_name: Stoat CI
-          author_email: stoat-ci@users.noreply.github.com
+          author_name: Upryzing CI
+          author_email: upryzing-ci@users.noreply.github.com
           tag: "${{ steps.check-api.outputs.api-version }} --force"
           message: "chore: bump version to ${{ steps.check-api.outputs.api-version }} [skip ci]"
 
       - name: Publish to npm
         run: npm publish --provenance --ignore-scripts
         if: steps.check-tag.outputs.exists == 'false'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Checkout stoat.js repository
+      - name: Checkout upryzing.js repository
         if: steps.check-tag.outputs.exists == 'false'
         uses: actions/checkout@v3
         with:
-          repository: stoatchat/javascript-client-sdk
-          path: stoat.js
+          repository: upryzing/upryzing.js
+          path: upryzing.js
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update stoat-api dependency
+      - name: Update @upryzing/api dependency
         if: steps.check-tag.outputs.exists == 'false'
-        run: cd stoat.js && pnpm add stoat-api@${{ steps.check-api.outputs.api-version }}
+        run: cd upryzing.js && pnpm add @upryzing/api@${{ steps.check-api.outputs.api-version }}
 
       - name: Commit changes
         if: steps.check-tag.outputs.exists == 'false'
         uses: EndBug/add-and-commit@v4
         with:
-          cwd: "stoat.js"
-          author_name: Stoat CI
-          author_email: stoat-ci@users.noreply.github.com
-          message: "chore: update stoat-api to ${{ steps.check-api.outputs.api-version }}"
+          cwd: "upryzing.js"
+          author_name: Upryzing CI
+          author_email: upryzing-ci@users.noreply.github.com
+          message: "chore: update @upryzing/api to ${{ steps.check-api.outputs.api-version }}"
