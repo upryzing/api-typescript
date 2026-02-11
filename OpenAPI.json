@@ -11,9 +11,9 @@
     },
     "license": {
       "name": "AGPLv3",
-      "url": "https://github.com/revoltchat/delta/blob/master/LICENSE"
+      "url": "https://github.com/upryzing/parrot/blob/master/LICENSE"
     },
-    "version": "0.10.3"
+    "version": "0.10.2"
   },
   "servers": [
     {
@@ -3948,7 +3948,7 @@
           "Emojis"
         ],
         "summary": "Create New Emoji",
-        "description": "Create an emoji by its Autumn upload id.",
+        "description": "Create an emoji by its Pigeon upload id.",
         "operationId": "emoji_create_create_emoji",
         "parameters": [
           {
@@ -5882,12 +5882,12 @@
         "title": "Feature Configuration",
         "type": "object",
         "required": [
-          "autumn",
           "captcha",
+          "dove",
           "email",
           "invite_only",
-          "january",
-          "livekit"
+          "livekit",
+          "pigeon"
         ],
         "properties": {
           "captcha": {
@@ -5906,7 +5906,7 @@
             "description": "Whether this server is invite only",
             "type": "boolean"
           },
-          "autumn": {
+          "pigeon": {
             "description": "File server service configuration",
             "allOf": [
               {
@@ -5914,7 +5914,7 @@
               }
             ]
           },
-          "january": {
+          "dove": {
             "description": "Proxy service configuration",
             "allOf": [
               {
@@ -7213,6 +7213,14 @@
             "type": "string",
             "nullable": true
           },
+          "pronouns": {
+            "description": "Preferred pronouns",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "avatar": {
             "description": "Avatar attachment",
             "allOf": [
@@ -7631,6 +7639,13 @@
             "pattern": "^[^\\u200B\\n\\r]+$",
             "nullable": true
           },
+          "pronouns": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
           "avatar": {
             "description": "Attachment Id for avatar",
             "type": "string",
@@ -7709,7 +7724,8 @@
               "StatusPresence",
               "ProfileContent",
               "ProfileBackground",
-              "DisplayName"
+              "DisplayName",
+              "Pronouns"
             ]
           },
           {
@@ -8363,7 +8379,7 @@
             "nullable": true
           },
           "icon": {
-            "description": "Icon\n\nProvide an Autumn attachment Id.",
+            "description": "Icon\n\nProvide an Pigeon attachment Id.",
             "type": "string",
             "maxLength": 128,
             "minLength": 1,
@@ -9219,7 +9235,7 @@
                 "nullable": true
               },
               "media": {
-                "description": "ID of uploaded autumn file",
+                "description": "ID of uploaded pigeon file",
                 "allOf": [
                   {
                     "$ref": "#/components/schemas/File"
