@@ -307,7 +307,7 @@ export interface paths {
     delete: operations["invite_delete_delete"];
   };
   "/custom/emoji/{id}": {
-    /** Create an emoji by its Autumn upload id. */
+    /** Create an emoji by its Pigeon upload id. */
     put: operations["emoji_create_create_emoji"];
   };
   "/custom/emoji/{emoji_id}": {
@@ -496,9 +496,9 @@ export interface components {
       /** @description Whether this server is invite only */
       invite_only: boolean;
       /** @description File server service configuration */
-      autumn: components["schemas"]["Feature"];
+      pigeon: components["schemas"]["Feature"];
       /** @description Proxy service configuration */
-      january: components["schemas"]["Feature"];
+      dove: components["schemas"]["Feature"];
       /** @description Voice server configuration */
       livekit: components["schemas"]["VoiceFeature"];
     };
@@ -886,6 +886,8 @@ export interface components {
       discriminator: string;
       /** @description Display name */
       display_name?: string | null;
+      /** @description Preferred pronouns */
+      pronouns?: string[] | null;
       /** @description Avatar attachment */
       avatar?: components["schemas"]["File"] | null;
       /** @description Relationships with other users */
@@ -1015,6 +1017,7 @@ export interface components {
     DataEditUser: {
       /** @description New display name */
       display_name?: string | null;
+      pronouns?: string[] | null;
       /** @description Attachment Id for avatar */
       avatar?: string | null;
       /** @description New user status */
@@ -1057,6 +1060,7 @@ export interface components {
           | "ProfileContent"
           | "ProfileBackground"
           | "DisplayName"
+          | "Pronouns"
         )
       | "Internal";
     /** Username Information */
@@ -1316,7 +1320,7 @@ export interface components {
       /**
        * @description Icon
        *
-       * Provide an Autumn attachment Id.
+       * Provide an Pigeon attachment Id.
        */
       icon?: string | null;
       /** @description Whether this channel is age-restricted */
@@ -1595,7 +1599,7 @@ export interface components {
           title?: string | null;
           /** @description Description of text embed */
           description?: string | null;
-          /** @description ID of uploaded autumn file */
+          /** @description ID of uploaded pigeon file */
           media?: components["schemas"]["File"] | null;
           /** @description CSS Colour */
           colour?: string | null;
@@ -4539,7 +4543,7 @@ export interface operations {
       };
     };
   };
-  /** Create an emoji by its Autumn upload id. */
+  /** Create an emoji by its Pigeon upload id. */
   emoji_create_create_emoji: {
     parameters: {
       path: {
