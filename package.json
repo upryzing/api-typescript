@@ -1,7 +1,7 @@
 {
   "name": "@upryzing/api",
   "version": "0.10.3",
-  "description": "Upryzing API Library",
+  "description": "Upryzing API library",
   "type": "module",
   "exports": {
     ".": "./lib/index.js"
