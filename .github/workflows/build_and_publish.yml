@@ -60,7 +60,7 @@ jobs:
           message: "chore: bump version to ${{ steps.check-api.outputs.api-version }} [skip ci]"
 
       - name: Publish to npm
-        run: npm publish --provenance --ignore-scripts
+        run: npm publish # --provenance --ignore-scripts
         if: steps.check-tag.outputs.exists == 'false'
         # env:
         #   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
